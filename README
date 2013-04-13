@@ -1,0 +1,42 @@
+The programs in this distribution are re-implementations of games for
+the Linux console.
+
+At this time, there is only one game in the distribution, csokoban,
+but a couple more are nearly ready. (I'm releasing this one now to
+help motivate myself to complete the other two.)
+
+INSTALLING
+
+In brief: "cd csokoban", "make", "make install". See csokoban/README
+for more information.
+
+JUSTIFICATION
+
+One day I was playing Xsokoban when it struck me that this game
+clearly was originally created for a text terminal. Curious, I did
+some hunting around, and finally found one curses-based implementation
+of sokoban, a Linux 1.x port from Minix code (which in turn had been
+ported at least once before). I realized that the X version of the
+game had completely eclipsed its origins at the terminal.
+
+I'm not a big fan of GUIs for the sake of graphics. Pretty pictures
+are nice, but text mode is where I spend most of my time. And the
+Linux console has many extremely advanced features for a text
+terminal, yet I just don't see many programs taking advantage of them.
+
+I decided to rewrite some of my favorite games for the Linux console,
+so I could play them, pretty pictures and all, without having to fire
+up X.
+
+THE FINE PRINT
+
+The programs in this distribution are free software. The software is
+distributed under the terms of the GNU General Public License version
+2 (or, at your option, any later version). See COPYING for specifics.
+
+Bug reports and other comments should be directed to myself.
+
+Share and enjoy.
+
+Brian Raiter <breadbox@muppetlabs.com>
+September, 2000

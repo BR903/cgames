@@ -1,0 +1,217 @@
+.TH csokoban 1 "August 2000"
+.LO 1
+.SH NAME
+csokoban \- sokoban for the Linux console
+.SH SYNOPSIS
+.B csokoban
+[\-hlqv] [\-d DIR] [\-s DIR] [NAME] [\-LEVEL]
+.br
+.SH DESCRIPTION
+This is an implementation of the classic game of sokoban, to be played
+on the Linux console.
+.P
+The object of the game is to move all the boxes into the specially
+marked spaces. The boxes cannot be pulled, only pushed, and only one
+box can be moved at a time.
+.P
+There are many levels, each with a unique configuration of walls,
+boxes, and goal spaces. The mechanics of the game are very simple, but
+finding solutions can sometimes be extremely challenging.
+.SH OPTIONS
+.TP
+.BI \-d " DIR"
+Look for game files in the directory
+.I DIR
+instead of the default.
+.TP
+.BI \-h
+Display a brief summary of the command\-line options and exit.
+.TP
+.BI \-l
+List the available game files and exit.
+.TP
+.BI \-q
+Play quietly; don't ring the bell during the game.
+.TP
+.BI \-s " DIR"
+Save your solutions in the directory
+.I DIR
+instead of the default.
+.TP
+.BI \-v
+Display version information and exit.
+.TP
+.BI NAME
+Play only the games in the file
+.IR NAME .
+.I NAME
+can be either the name (or the prefix of a name) of a file in the game
+files directory (i.e., one of the files displayed with the
+.I -l
+option), or an explicit filename. In the latter case, the saving of
+solutions will be disabled.
+.TP
+.BI \-LEVEL
+Start playing at level
+.IR LEVEL .
+If this option is not used,
+.B csokoban
+begins at the first level you haven't solved yet.
+.SH KEY COMMANDS
+.TP
+.BI hjkl
+The vi keys move you around in the traditional fashion (h=left,
+j=down, k=up, l=right).
+.TP
+.BI HJKL
+Using shift repeats the move as many times as possible.
+.TP
+.BI arrows
+The arrow keys can be used for movement as well.
+.TP
+.BI x
+Undo the previous move.
+.TP
+.BI X
+Undo the previous eight moves.
+.TP
+.BI z
+Redo the last move (presuming the last move was an undo).
+.TP
+.BI Z
+Redo the last eight undone moves.
+.TP
+.BI m
+Toggle macro recording on and off. (A capital
+.B M
+is displayed on the right while macro recording is on.) By recording a
+sequence of moves, the sequence can be automatically repeated any
+number of times. A macro is keyed to the location where recording is
+started. Different locations in the map can each have their own
+macro. (A capital
+.B P
+is displayed on the right whenever a macro is available at the current
+position.)
+.TP
+.BI p
+Play back the macro recorded at the current location. The macro will
+stop playing early if an attempted move is not possible.
+.TP
+.BI s
+Save the current position. There is no limit on the number of
+positions that can be saved. (A capital
+.B S
+is displayed on the right when one or more positions have been saved.)
+.TP
+.BI r
+Restore the last saved position. Undo and redo positions are also
+restored, but not macros.
+.TP
+.BI R
+Restart the game from the beginning. Any recorded macros are
+lost, but saved positions are retained.
+.TP
+.BI Ctrl\-R
+Also restarts the game, but with a different redo list (see below).
+.TP
+.BI P
+Go to the previous level, quitting the current one.
+.TP
+.BI N
+Go to the next level, quitting the current one.
+.TP
+.BI q
+Quit; exit the program.
+.TP
+.BI Ctrl\-L
+Redraw the screen.
+.SH SOLUTIONS
+When a solution for a level is found, the game automatically stores it
+in your personal save directory.
+.B csokoban
+will remember up to two solutions per level: one using the least
+number of moves, and one using the least number of pushes.
+.P
+When a game that you have already solved begins, the solution is
+loaded into the redo list. This permits you to view your solution
+and/or perhaps use it as the start of finding a better solution. By
+default, the solution that uses the least number of moves is used.
+However, if you have a different solution for the least number of
+pushes, you can explicitly load it by restarting the game with
+Ctrl\-R.
+.SH FILE FORMATS
+A game file contains a number of maps that comprise a complete series
+of levels. The level maps are separated from each other in the file by
+one or more blank lines, and/or lines beginning with a semicolon,
+single quote, or equal sign. The map is defined using the following
+characters:
+.TP
+.BI #
+wall
+.TP
+.BI $
+box
+.TP
+.BI .
+goal
+.TP
+.BI *
+box on a goal
+.TP
+.BI +
+player on a goal
+.P
+If a line within the map contains a semicolon, it and the remaining
+characters on the line are ignored.
+.P
+If a map is preceded by a line of text prefixed with two semicolons,
+the text of that line will be displayed along with that map.
+Similarly, each file can have a line of text prefixed with two
+semicolons to provide text to be displayed along with all the maps in
+that series.
+.P
+The files containing your solutions are given the same name as the
+game files, and solutions appear in the same order. Solutions are
+separated from each other by blank lines, and/or lines beginning with
+a semicolon. The solutions are stored as a sequence of
+.I h j k l
+characters, representing moves left, down, up, and right respectively.
+A capital letter is used to indicate that the move includes pushing a
+box. Each solution is prefixed by a line indicating the number of
+moves and pushes it involves. If there are two solutions for a given
+level, the one for the minimum number of moves appears first.
+.P
+The solution files are meant to be human\-readable, but not
+human\-editable.
+.B csokoban
+does minimal error\-checking on the contents of the solution files. If
+you change a solution by hand, and do so incorrectly, it is possible
+that
+.I csokoban
+will discard the solution entirely the next time it writes to that
+file, as well as every solution following it.
+.SH DIRECTORIES
+.TP
+/usr/local/share/csokoban/
+The default directory searched for game files.
+.TP
+~/.csokoban
+The default directory for storing solutions.
+.SH ENVIRONMENT
+.TP
+SOKSAVEDIR
+Specifies an alternate directory for storing solutions.
+.SH LICENSE
+.B csokoban
+is copyright (C) 2000 by Brian Raiter
+.IR <breadbox@muppetlabs.com> .
+.P
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or (at
+your option) any later version.
+.P
+This program is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the file
+COPYING, included in the distribution, for more details.

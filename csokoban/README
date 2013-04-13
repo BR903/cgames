@@ -1,0 +1,44 @@
+INSTALLING
+
+Since csokoban is written specifically for Linux 2.x, no configure
+script is needed. Use "make" to build csokoban. By default, "make
+install" will install csokoban under /usr/local/games, and the puzzles
+in /usr/local/share/csokoban. These directories can be changed by
+editing the first few lines of the Makefile.
+
+ALTERNATE VERSION
+
+An alternate version of csokoban is included, which uses curses and
+therefore does not require the Linux console. It isn't as pretty, but
+it has all the same functionality. To build this version:
+
+1. change the symbolic link userio.c to point to cursesio.c instead of
+   linuxio.c;
+2. uncomment the definition of LOADLIBES in the Makefile;
+3. rebuild.
+
+BACKGROUND
+
+The game of Sokoban was originally created by Hiroyuki Imabayashi in
+1982, for a Japanese computer games company called Thinking Rabbit.
+
+The first fifty puzzles originated from a 1984 version of the game for
+the PC, written by Spectrum Holobyte. The programmer who first wrote a
+version of Sokoban for Unix apparently copied these puzzles. When
+Xsokoban was released, it included these fifty plus 35 more from
+various public-domain sources. Another five were added in a later
+version.
+
+Along with these ninety puzzles, now pretty much standard in any
+version of Sokoban, I have included two other sets that struck me as
+being at an appropriate level of difficulty -- a collection created
+by J. Franklin Mentzer called "Still More!", and another by Yoshio
+Murase (who also has a collection of small puzzles that were created
+by a AI program).
+
+There are many more collections of Sokoban puzzles available on the
+net. Those who are interested should check out the list of links at
+the Xsokoban home page, http://xsokoban.lcs.mit.edu/xsokoban.html.
+
+Brian Raiter <breadbox@muppetlabs.com>
+September, 2000
