@@ -19,6 +19,10 @@
  */
 char   *savedir = NULL;
 
+/* FALSE if savedir's existence is unverified.
+ */
+int	savedirchecked = FALSE;
+
 /* Read a sequence of movecount moves from fp. Each move is a single
  * character: h, j, k, or l for left, down, up or right. Capital
  * letters indicate that the move also pushes a box. Whitespace is
@@ -172,8 +176,8 @@ int saveanswers(gameseries *series)
     }
 
     if (!series->answerfp || series->answersreadonly) {
-	if (!series->savedirchecked) {
-	    series->savedirchecked = TRUE;
+	if (!savedirchecked) {
+	    savedirchecked = TRUE;
 	    if (!finddir(savedir)) {
 		currentfilename = savedir;
 		return fileerr(NULL);

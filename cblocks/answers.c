@@ -19,6 +19,10 @@
  */
 char   *savedir = NULL;
 
+/* FALSE if savedir's existence is unverified.
+ */
+int	savedirchecked = FALSE;
+
 /* Read a sequence of movecount moves from fp. Moves are grouped into
  * steps. Each step begins with the coordinates of the top-left cell
  * of the block to be moved, followed by a sequence of the characters
@@ -208,8 +212,8 @@ int saveanswers(gameseries *series)
     }
 
     if (!series->answerfp || series->answersreadonly) {
-	if (!series->savedirchecked) {
-	    series->savedirchecked = TRUE;
+	if (!savedirchecked) {
+	    savedirchecked = TRUE;
 	    if (!finddir(savedir)) {
 		currentfilename = savedir;
 		return fileerr(NULL);

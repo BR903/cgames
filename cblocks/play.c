@@ -521,8 +521,69 @@ void freesavedstates(void)
 }
 
 /*
- * Miscellaneous exported functions
+ * Miscellaneous functions
  */
+
+/* Print the current map to stdout.
+ */
+static void outputmapstate(void)
+{
+    static char	charids[] = "ONBHUEZXDQ8MWKRGAVS523694PFTYCL7";
+    char	obj[3] = "  ";
+    cell       *map;
+    int		spaces, id;
+    int		y, x;
+
+    if (state.stepcount)
+	printf("== step %d\n", state.stepcount);
+    map = state.map;
+    for (y = 0 ; y < state.game->ysize ; ++y, map += XSIZE) {
+	spaces = 0;
+	for (x = 0 ; x < state.game->xsize ; ++x) {
+	    id = blockid(map[x]);
+	    if (id) {
+		obj[0] = id == WALLID ? '#'
+		       : id == KEYID ? '0' : charids[(id - FIRSTID) % 32];
+		obj[1] = map[x] & EXTENDEAST ? obj[0] : '\0';
+	    } else if ((map[x] & DOORSTAMP_MASK) &&
+				doortime(map[x]) > state.movecount + 1) {
+		obj[0] = '+';
+		obj[1] = map[x] & FEXTENDEAST ? '+' : '\0';
+	    } else {
+		spaces += 2;
+		continue;
+	    }
+	    printf("%*s%s", spaces, "", obj);
+	    spaces = obj[1] ? 0 : 1;
+	}
+	putchar('\n');
+    }
+
+}
+
+/* Print to stdout a series of images of the map as the moves of a
+ * user's solution are applied.
+ */
+int displaygamesolution(void)
+{
+    action     *move;
+    int		lastid = -1;
+    int		i;
+
+    if (!state.redo.count)
+	return FALSE;
+    move = state.redo.list + state.redo.count;
+    for (i = 0 ; i < state.redo.count ; ++i) {
+	--move;
+	if (move->id != lastid) {
+	    lastid = move->id;
+	    outputmapstate();
+	}
+	domove(*move);
+    }
+    outputmapstate();
+    return TRUE;
+}
 
 /* Return TRUE if the current map is equivalent to the goal.
  */

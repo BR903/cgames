@@ -1,4 +1,9 @@
-9 Sept 2000: Version 2.0
+16 Sept 2000: version 2.0a
+
+* Bug fixes in the code and documentation.
+* Added the -w feature to cblocks and csokoban.
+
+9 Sept 2000: version 2.0
 
 * cmines and cblocks are finished and ready for release.
 * Version numbers have been assigned, somewhat arbitrarily, to the

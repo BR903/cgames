@@ -6,10 +6,11 @@ datadir = $(prefix)/share/csokoban
 CC = gcc
 CFLAGS = -Wall -O '-DDATADIR="$(datadir)"'
 LDFLAGS = -Wall -O -s
+LOADLIBES =
 
 # Uncomment this line to build the curses-based version.
 #
-#LOADLIBES = -lncurses
+#LOADLIBES += -lncurses
 
 OBJS = csokoban.o movelist.o fileread.o answers.o play.o dirio.o userio.o
 

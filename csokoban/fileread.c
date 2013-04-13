@@ -54,32 +54,31 @@ int getline(FILE *fp, char *buf, int len)
     return n;
 }
 
-/* Recursively flood-fill an area surrounded by WALLs, replacing
- * CELLMARKs with FLOORs.
+/* Recursively flood-fill an area surrounded by WALLs with an absence
+ * of FLOORs.
  */
-static void addflooring(cell *map, yx pos)
+static void pullflooring(cell *map, yx pos)
 {
-    map[pos] &= ~CELLMARK;
     if (map[pos] & WALL)
 	return;
-
-    map[pos] |= FLOOR;
-    if ((map[pos - XSIZE] & (WALL | CELLMARK)) == CELLMARK)
-	addflooring(map, pos - XSIZE);
-    if ((map[pos + XSIZE] & (WALL | CELLMARK)) == CELLMARK)
-	addflooring(map, pos + XSIZE);
-    if ((map[pos - 1] & (WALL | CELLMARK)) == CELLMARK)
-	addflooring(map, pos - 1);
-    if ((map[pos + 1] & (WALL | CELLMARK)) == CELLMARK)
-	addflooring(map, pos + 1);
+    map[pos] &= ~FLOOR;
+    if (pos >= XSIZE && (map[pos - XSIZE] & (WALL | FLOOR)) == FLOOR)
+	pullflooring(map, pos - XSIZE);
+    if (pos <= MAXHEIGHT * MAXWIDTH - XSIZE &&
+			(map[pos + XSIZE] & (WALL | FLOOR)) == FLOOR)
+	pullflooring(map, pos + XSIZE);
+    if (pos % XSIZE > 0 && (map[pos - 1] & (WALL | FLOOR)) == FLOOR)
+	pullflooring(map, pos - 1);
+    if (pos % XSIZE < MAXWIDTH - 1 && (map[pos + 1] & (WALL | FLOOR)) == FLOOR)
+	pullflooring(map, pos + 1);
 }
 
 /* Add data not explicitly defined in the file's representation.
  * Neighboring WALL cells are "joined" so that they can be drawn in
- * outline, and every cell that the player can reach from the starting
- * position is marked as having a FLOOR. Finally, invisible WALLs are
- * added around the outer edge (so as to insure that the player is not
- * allowed to leave the map and go walking through the heap).
+ * outline, and every cell that is "inside" is given a FLOOR. Finally,
+ * invisible WALLs are added around the outer edge (so as to insure
+ * that the player is not allowed to leave the map and go walking
+ * through the heap).
  */
 static int improvemap(gamesetup *game)
 {
@@ -89,9 +88,11 @@ static int improvemap(gamesetup *game)
 
     initpos = 0;
     map = game->map;
-    for (y = 1, map += XSIZE ; y < game->ysize - 1 ; ++y, map += XSIZE) {
-	for (x = 1 ; x < game->xsize - 1 ; ++x) {
-	    map[x] |= CELLMARK;
+    for (y = 0 ; y < game->ysize ; ++y, map += XSIZE) {
+	for (x = 0 ; x < game->xsize ; ++x) {
+	    if (map[x] & WALL)
+		continue;
+	    map[x] |= FLOOR;
 	    if (map[x] & PLAYER) {
 		if (initpos)
 		    return fileerr("multiple players in map");
@@ -101,11 +102,8 @@ static int improvemap(gamesetup *game)
     }
     if (!initpos)
 	return fileerr("no player in map");
-    addflooring(game->map, initpos);
-    map = game->map;
-    for (y = 1, map += XSIZE ; y < game->ysize - 1 ; ++y, map += XSIZE)
-	for (x = 1 ; x < game->xsize - 1 ; ++x)
-	    map[x] &= ~CELLMARK;
+
+    pullflooring(game->map, 0);
 
     map = game->map;
     for (y = 1, map += XSIZE ; y < game->ysize - 1 ; ++y, map += XSIZE) {
@@ -334,7 +332,7 @@ int getseriesfiles(char *filename, gameseries **list, int *count)
  */
 int readlevelinseries(gameseries *series, int level)
 {
-    int		n;
+    int	n;
 
     if (level < 0)
 	return FALSE;
@@ -353,7 +351,7 @@ int readlevelinseries(gameseries *series, int level)
 		series->answerfp = openfileindir(savedir, 
 						 series->filename, "r");
 		if (series->answerfp) {
-		    series->savedirchecked = TRUE;
+		    savedirchecked = TRUE;
 		    series->answersreadonly = TRUE;
 		}
 	    } else
@@ -365,6 +363,8 @@ int readlevelinseries(gameseries *series, int level)
 		if (!(series->games = realloc(series->games,
 					      n * sizeof *series->games)))
 		    memerrexit();
+		memset(series->games + series->allocated, 0,
+		       (n - series->allocated) * sizeof *series->games);
 		series->allocated = n;
 	    }
 	    if (readlevelmap(series->mapfp, series->games + series->count)) {

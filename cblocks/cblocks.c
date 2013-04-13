@@ -29,18 +29,21 @@
 typedef	struct startupdata {
     char       *filename;	/* which puzzle file to use */
     int		level;		/* which puzzle to start at */
+    int		silence;	/* FALSE if we are allowed to ring the bell */
     int		listseries;	/* TRUE if the files should be displayed */
+    int		writeanswer;	/* TRUE if the solution should be displayed */
 } startupdata;
 
 /* Online help.
  */
 static char const *yowzitch = 
-	"Usage: cblocks [-hvql] [-D DIR] [-S DIR] [NAME] [-LEVEL]\n"
+	"Usage: cblocks [-hvqlw] [-D DIR] [-S DIR] [NAME] [-LEVEL]\n"
 	"   -h  Display this help\n"
 	"   -v  Display version information\n"
-	"   -l  Display the list of available setup files\n"
-	"   -d  Read setup files from DIR instead of the default\n"
-	"   -s  Save games in DIR instead of the default\n"
+	"   -l  Print out the list of available setup files\n"
+	"   -w  Print out the solution for the specified puzzle\n"
+	"   -D  Read setup files from DIR instead of the default\n"
+	"   -S  Save games in DIR instead of the default\n"
 	"   -q  Be quiet; don't ring the bell\n"
 	"NAME specifies which setup file to read.\n"
 	"LEVEL specifies which level number to start with.\n"
@@ -114,7 +117,7 @@ static void displayserieslist(void)
     for (i = 0 ; i < seriescount ; ++i) {
 	n = strlen(serieslist[i].filename);
 	if (!readlevelinseries(serieslist + i, 0)) {
-	    *serieslist[i].filename = '\0';
+	    serieslist[i].filename = "";
 	    continue;
 	}
 	if (n > 4 && !strcmp(serieslist[i].filename + n - 4, ".txt")) {
@@ -329,6 +332,7 @@ static void playgame(void)
  */
 static void initwithcmdline(int argc, char *argv[], startupdata *start)
 {
+    static char	null[1] = "";
     char const *dir;
     int		ch;
 
@@ -342,13 +346,15 @@ static void initwithcmdline(int argc, char *argv[], startupdata *start)
 	strncpy(savedir, dir, sizeof savedir - 1);
 	savedir[sizeof savedir - 1] = '\0';
     } else if ((dir = getenv("HOME")))
-	sprintf(savedir, "%.*s/.cblocks", (int)(sizeof savedir - 11), dir);
+	sprintf(savedir, "%.*s/.cblocks", (int)(sizeof savedir - 10), dir);
 
-    *start->filename = '\0';
+    start->filename = null;
     start->level = 0;
+    start->silence = FALSE;
     start->listseries = FALSE;
+    start->writeanswer = FALSE;
 
-    while ((ch = getopt(argc, argv, "0123456789D:S:hlqv")) != EOF) {
+    while ((ch = getopt(argc, argv, "0123456789D:S:hlqvw")) != EOF) {
 	switch (ch) {
 	  case '0': case '1': case '2': case '3': case '4':
 	  case '5': case '6': case '7': case '8': case '9':
@@ -356,8 +362,9 @@ static void initwithcmdline(int argc, char *argv[], startupdata *start)
 	    break;
 	  case 'D':	copypath(datadir, optarg);			break;
 	  case 'S':	copypath(savedir, optarg);			break;
-	  case 'q':	silence = TRUE;					break;
+	  case 'q':	start->silence = TRUE;				break;
 	  case 'l':	start->listseries = TRUE;			break;
+	  case 'w':	start->writeanswer = TRUE;			break;
 	  case 'h':	fputs(yowzitch, stdout); exit(EXIT_SUCCESS);
 	  case 'v':	fputs(vourzhon, stdout); exit(EXIT_SUCCESS);
 	  default:	fputs(yowzitch, stderr); exit(EXIT_FAILURE);
@@ -388,11 +395,18 @@ int main(int argc, char *argv[])
 	return EXIT_SUCCESS;
     }
 
-    ioprepare();
-
     pickstartinggame(start.filename, start.level);
 
-    if (!ioinitialize())
+    if (start.writeanswer) {
+	selectgame(serieslist[currentseries].games + currentgame, currentgame);
+	initgamestate();
+	if (!displaygamesolution())
+	    die("No solution exists for \"%s\", puzzle %d.",
+		serieslist[currentseries].name, currentgame);
+	return EXIT_SUCCESS;
+    }
+
+    if (!ioinitialize(start.silence))
 	die("Failed to initialize terminal.");
 
     for (;;) {

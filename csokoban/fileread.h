@@ -44,7 +44,6 @@ typedef	struct gameseries {
     int		allmapsread;		/* TRUE if mapfp has reached EOF */
     int		allanswersread;		/* TRUE if answerfp has reached EOF */
     int		answersreadonly;	/* TRUE if answerfp is open readonly */
-    int		savedirchecked;		/* FALSE if savedir is unverified */
     char	name[64];		/* the series's name */
 } gameseries;
 

@@ -41,15 +41,15 @@ static int		lastline;
  */
 static int		sidebar;
 
+/* FALSE if the program is allowed to ring the bell.
+ */
+static int		silence = FALSE;
+
 /* The name of the program and the file currently being accessed,
  * for use in error messages (declared in gen.h).
  */
 char const	       *programname = NULL;
 char const	       *currentfilename = NULL;
-
-/* FALSE if the program is allowed to ring the bell.
- */
-int			silence = FALSE;
 
 /*
  * Input and output functions
@@ -60,9 +60,6 @@ int			silence = FALSE;
  */
 char getrgbindex(int r, int g, int b)
 {
-    if (!has_colors())
-	return 0;
-
     return (r >= 96 ? 1 : 0) | (g >= 96 ? 2 : 0) | (b >= 96 ? 4 : 0);
 }
 
@@ -420,16 +417,19 @@ static void shutdown(void)
     }
 }
 
-/* Prepare the user interface, and ensure that the terminal has enough
- * room to display anything.
+/* Prepare the user interface, change the terminal modes, and ensure
+ * that the terminal has enough room to display anything.
  */
-void ioprepare(void)
+int ioinitialize(int silenceflag)
 {
     int	y, x;
+
+    silence = silenceflag;
 
     atexit(shutdown);
     if (!initscr())
 	die("Couldn't initialize the console!");
+
     getmaxyx(stdscr, y, x);
     lastline = y - 1;
     sidebar = x - SIDEBARWIDTH;
@@ -437,12 +437,7 @@ void ioprepare(void)
     fieldwidth = sidebar / 4;
     if (sidebar < 1)
 	die("The terminal screen is too darned small!");
-}
 
-/* Change the terminal modes.
- */
-int ioinitialize(void)
-{
     nonl();
     cbreak();
     noecho();

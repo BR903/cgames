@@ -171,7 +171,7 @@ int readlevelinseries(gameseries *series, int level)
 		series->answerfp = openfileindir(savedir, 
 						 series->filename, "r");
 		if (series->answerfp) {
-		    series->savedirchecked = TRUE;
+		    savedirchecked = TRUE;
 		    series->answersreadonly = TRUE;
 		}
 	    } else
@@ -183,6 +183,8 @@ int readlevelinseries(gameseries *series, int level)
 		if (!(series->games = realloc(series->games,
 					      n * sizeof *series->games)))
 		    memerrexit();
+		memset(series->games + series->allocated, 0,
+		       (n - series->allocated) * sizeof *series->games);
 		series->allocated = n;
 	    }
 	    if (readlevelmap(series->mapfp, series->games + series->count)) {

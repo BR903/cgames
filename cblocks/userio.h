@@ -9,20 +9,13 @@
 
 #include	"cblocks.h"
 
-/* FALSE if we are allowed to ring the bell.
+/* Initialize the user interface for our program. This functions
+ * checks to make sure it can do the necessary I/O, and sets
+ * fieldheight and fieldwidth, but does not do anything to the
+ * interface (such as altering terminal modes). If silence is TRUE,
+ * then the beep() function will have no effect.
  */
-extern int	silence;
-
-/* Prepare the user interface. This functions checks to make sure it
- * can do the necessary I/O, and sets fieldheight and fieldwidth, but
- * does not do anything to the interface (such as altering terminal
- * modes).
- */
-extern void ioprepare(void);
-
-/* Initialize the user interface for our program.
- */
-extern int ioinitialize(void);
+extern int ioinitialize(int silence);
 
 /* Wait for a keypress.
  */

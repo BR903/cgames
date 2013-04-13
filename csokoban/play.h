@@ -49,10 +49,19 @@ extern int newmove(yx delta);
  */
 extern int undomove(void);
 
+/* Undo the last n moves. FALSE is returned if there is no last move.
+ */
+extern int undomoves(int n);
+
 /* Reinstate the last undone move. FALSE is returned if the previous
  * action was not an undo.
  */
 extern int redomove(void);
+
+/* Redo the last n undone moves. FALSE is returned if the previous
+ * action was not an undo.
+ */
+extern int redomoves(int n);
 
 /* Return TRUE if the current state has completed the puzzle.
  */
@@ -103,5 +112,10 @@ extern int drawscreen(int index);
  * replaced.
  */
 extern int replaceanswers(void);
+
+/* Print to stdout a series of images of the current game as the
+ * user's solution is followed.
+ */
+extern int displaygamesolution(void);
 
 #endif

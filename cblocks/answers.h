@@ -14,6 +14,10 @@
  */
 extern char    *savedir;
 
+/* FALSE if savedir's existence is unverified.
+ */
+extern int	savedirchecked;
+
 /* Read the solutions for game, if any, from the current file
  * position.
  */

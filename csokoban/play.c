@@ -43,6 +43,10 @@ static int		macroplay = -1;
  */
 static gamestate	state;
 
+/*
+ * Game state handling functions
+ */
+
 /* Make a copy of from that shares no memory with to.
  */
 static void copygamestate(gamestate *to, gamestate const *from)
@@ -160,6 +164,16 @@ int undomove(void)
     return TRUE;
 }
 
+/* Undo the last n moves.
+ */
+int undomoves(int n)
+{
+    if (!state.undo.count)
+	return FALSE;
+    while (n-- && undomove()) ;
+    return TRUE;
+}
+
 /* Redo the last undone move.
  */
 int redomove(void)
@@ -167,6 +181,16 @@ int redomove(void)
     if (!state.redo.count)
 	return FALSE;
     domove(state.redo.list[--state.redo.count]);
+    return TRUE;
+}
+
+/* Redo the last n moves.
+ */
+int redomoves(int n)
+{
+    if (!state.redo.count)
+	return FALSE;
+    while (n-- && redomove()) ;
     return TRUE;
 }
 
@@ -308,6 +332,68 @@ void freesavedstates(void)
 	free(stack);
 	stack = next;
     }
+}
+
+/*
+ * Miscellaneous functions
+ */
+
+/* Print the current map to stdout.
+ */
+static void outputmapstate(void)
+{
+    char	obj[2] = " ";
+    cell       *map;
+    int		spaces;
+    int		y, x;
+
+    if (state.movecount)
+	printf(";;; move %d\n", state.movecount);
+    map = state.map;
+    for (y = 1, map += XSIZE ; y < state.game->ysize - 1 ; ++y, map += XSIZE) {
+	spaces = 0;
+	for (x = 1 ; x < state.game->xsize - 1 ; ++x) {
+	    if (map[x] & PLAYER)
+		obj[0] = map[x] & GOAL ? '+' : '@';
+	    else if (map[x] & BOX)
+		obj[0] = map[x] & GOAL ? '*' : '$';
+	    else if (map[x] & WALL)
+		obj[0] = '#';
+	    else if (map[x] & GOAL)
+		obj[0] = '.';
+	    else {
+		++spaces;
+		continue;
+	    }
+	    printf("%*s", spaces + 1, obj);
+	    spaces = 0;
+	}
+	putchar('\n');
+    }
+}
+
+/* Print to stdout a series of images of the map as the moves of a
+ * user's solution are applied.
+ */
+int displaygamesolution(void)
+{
+    dyx		lastmove = { 0 };
+    dyx	       *move;
+    int		i;
+
+    if (!state.redo.count)
+	return FALSE;
+    move = state.redo.list + state.redo.count;
+    for (i = 0 ; i < state.redo.count ; ++i) {
+	--move;
+	if (move->yx != lastmove.yx || move->box != lastmove.box) {
+	    lastmove = *move;
+	    outputmapstate();
+	}
+	domove(*move);
+    }
+    outputmapstate();
+    return TRUE;
 }
 
 /* Display the current game state to the user.

@@ -24,6 +24,11 @@ goals, and enclosing trays. The mechanics of the game are very simple,
 but reaching the solution can be quite challenging.
 .SH OPTIONS
 .TP
+.BI \-D " DIR"
+Look for puzzle files in the directory
+.I DIR
+instead of the default.
+.TP
 .BI \-h
 Display a brief summary of the command\-line options and exit.
 .TP
@@ -54,7 +59,8 @@ solutions will be disabled.
 .BI \-LEVEL
 Start playing at level
 .IR LEVEL .
-If this option is not used,
+(This number is the same as the index number displayed in the upper
+right corner while playing.) If this option is not used,
 .B cblocks
 begins with the first unsolved puzzle.
 .SH KEY COMMANDS

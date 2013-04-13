@@ -29,18 +29,22 @@
 typedef	struct startupdata {
     char       *filename;	/* which puzzle file to use */
     int		level;		/* which puzzle to start at */
+    int		silence;	/* FALSE if we are allowed to ring the bell */
     int		listseries;	/* TRUE if the files should be displayed */
+    int		writeanswer;	/* TRUE if the solution should be displayed */
 } startupdata;
 
 /* Online help.
  */
 static char const *yowzitch = 
-	"Usage: csokoban [-hvql] [-d DIR] [-s DIR] [NAME] [-LEVEL]\n"
+	"Usage: csokoban [-hvqlwW] [-d DIR] [-s DIR] [NAME] [-LEVEL]\n"
 	"   -h  Display this help\n"
 	"   -v  Display version information\n"
-	"   -l  Display the list of available setup files\n"
-	"   -d  Read setup files from DIR instead of the default\n"
-	"   -s  Save games in DIR instead of the default\n"
+	"   -l  Print out the list of available setup files\n"
+	"   -w  Print out the solution for the specified level\n"
+	"   -W  Same as -w, but using the least-pushes solution\n"
+	"   -D  Read setup files from DIR instead of the default\n"
+	"   -S  Save games in DIR instead of the default\n"
 	"   -q  Be quiet; don't ring the bell\n"
 	"NAME specifies which setup file to read.\n"
 	"LEVEL specifies which level number to start with.\n"
@@ -67,6 +71,10 @@ static int		currentseries = 0;
 /* The index of the current puzzle within the current series.
  */
 static int		currentgame = 0;
+
+/* How to initialize the redo list for the next puzzle.
+ */
+static int		usemoves = TRUE;
 
 /*
  * Game-choosing functions
@@ -219,8 +227,6 @@ static void drawhelpscreen(void)
  */
 static int doturn(void)
 {
-    int	i;
-
     if (isplaying()) {
 	macromove();
 	return 0;
@@ -235,14 +241,14 @@ static int doturn(void)
       case 'L':		while (newmove(+1)) ;			break;
       case 'J':		while (newmove(+XSIZE)) ;		break;
       case 'H':		while (newmove(-1)) ;			break;
-      case 'x':		if (!undomove()) ding();		break;
-      case 'z':		if (!redomove()) ding();		break;
+      case 'x':		if (!undomove())		ding();	break;
+      case 'z':		if (!redomove())		ding();	break;
       case 's':		savestate();				break;
-      case 'r':		if (!restorestate()) ding();		break;
+      case 'r':		if (!restorestate())		ding();	break;
       case 'm':		setmacro();				break;
-      case 'p':		if (!startmacro()) ding();		break;
-      case 'X':		for (i = 8 ; i-- && undomove() ; ) ;	break;
-      case 'Z':		for (i = 8 ; i-- && redomove() ; ) ;	break;
+      case 'p':		if (!startmacro())		ding();	break;
+      case 'X':		if (!undomoves(8))		ding();	break;
+      case 'Z':		if (!redomoves(8))		ding();	break;
       case 'R':		initgamestate(TRUE);			break;
       case '\022':	initgamestate(FALSE);			break;
       case '?':		drawhelpscreen();			break;
@@ -265,12 +271,15 @@ static int endinput(int endofsession)
     displayendmessage(endofsession);
     for (;;) {
 	switch (input()) {
-	  case '\n':		return 0;
-	  case 'N':		return 0;
-	  case 'R':		return -1;
-	  case 'P':		return -2;
-	  case 'q':		exit(0);
-	  case 'Q':		exit(0);
+	  case '\n':	usemoves = TRUE;	return 0;
+	  case 'N':	usemoves = TRUE;	return 0;
+	  case 'R':	usemoves = TRUE;	return -1;
+	  case 'P':	usemoves = TRUE;	return -2;
+	  case '\016':	usemoves = FALSE;	return 0;
+	  case '\022':	usemoves = FALSE;	return -1;
+	  case '\020':	usemoves = FALSE;	return -2;
+	  case 'q':				exit(0);
+	  case 'Q':				exit(0);
 	}
     }
 }
@@ -334,11 +343,14 @@ static void initwithcmdline(int argc, char *argv[], startupdata *start)
     } else if ((dir = getenv("HOME")))
 	sprintf(savedir, "%.*s/.csokoban", (int)(sizeof savedir - 11), dir);
 
+    start->filename = getpathbuffer();
     *start->filename = '\0';
     start->level = 0;
+    start->silence = FALSE;
     start->listseries = FALSE;
+    start->writeanswer = FALSE;
 
-    while ((ch = getopt(argc, argv, "0123456789D:S:hlqv")) != EOF) {
+    while ((ch = getopt(argc, argv, "0123456789D:S:hlqvWw")) != EOF) {
 	switch (ch) {
 	  case '0': case '1': case '2': case '3': case '4':
 	  case '5': case '6': case '7': case '8': case '9':
@@ -346,11 +358,13 @@ static void initwithcmdline(int argc, char *argv[], startupdata *start)
 	    break;
 	  case 'D':	strncpy(datadir, optarg, sizeof datadir - 1);	break;
 	  case 'S':	strncpy(savedir, optarg, sizeof savedir - 1);	break;
-	  case 'q':	silence = TRUE;					break;
+	  case 'q':	start->silence = TRUE;				break;
 	  case 'l':	start->listseries = TRUE;			break;
-	  case 'h':	fputs(yowzitch, stdout); exit(EXIT_SUCCESS);
-	  case 'v':	fputs(vourzhon, stdout); exit(EXIT_SUCCESS);
-	  default:	fputs(yowzitch, stderr); exit(EXIT_FAILURE);
+	  case 'W':	start->writeanswer = -1;			break;
+	  case 'w':	start->writeanswer = +1;			break;
+	  case 'h':	fputs(yowzitch, stdout); 	exit(EXIT_SUCCESS);
+	  case 'v':	fputs(vourzhon, stdout); 	exit(EXIT_SUCCESS);
+	  default:	fputs(yowzitch, stderr); 	exit(EXIT_FAILURE);
 	}
     }
 
@@ -378,16 +392,23 @@ int main(int argc, char *argv[])
 	return EXIT_SUCCESS;
     }
 
-    ioprepare();
-
     pickstartinggame(start.filename, start.level);
 
-    if (!ioinitialize())
+    if (start.writeanswer) {
+	selectgame(serieslist[currentseries].games + currentgame, currentgame);
+	initgamestate(start.writeanswer > 0);
+	if (!displaygamesolution())
+	    die("No solution exists for \"%s\", level %d.",
+		serieslist[currentseries].name, currentgame);
+	return EXIT_SUCCESS;
+    }
+
+    if (!ioinitialize(start.silence))
 	die("Failed to initialize terminal.");
 
     for (;;) {
 	selectgame(serieslist[currentseries].games + currentgame, currentgame);
-	initgamestate(TRUE);
+	initgamestate(usemoves);
 	playgame();
 	if (!readlevel())
 	    break;

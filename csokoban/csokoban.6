@@ -4,7 +4,7 @@
 csokoban \- sokoban for the Linux console
 .SH SYNOPSIS
 .B csokoban
-[\-hlqv] [\-d DIR] [\-s DIR] [NAME] [\-LEVEL]
+[\-hlqv] [\-D DIR] [\-S DIR] [NAME] [\-LEVEL]
 .br
 .SH DESCRIPTION
 This is an implementation of the classic game of sokoban, to be played
@@ -19,7 +19,7 @@ boxes, and goal spaces. The mechanics of the game are very simple, but
 finding solutions can sometimes be extremely challenging.
 .SH OPTIONS
 .TP
-.BI \-d " DIR"
+.BI \-D " DIR"
 Look for game files in the directory
 .I DIR
 instead of the default.
@@ -33,7 +33,7 @@ List the available game files and exit.
 .BI \-q
 Play quietly; don't ring the bell during the game.
 .TP
-.BI \-s " DIR"
+.BI \-S " DIR"
 Save your solutions in the directory
 .I DIR
 instead of the default.
@@ -41,20 +41,37 @@ instead of the default.
 .BI \-v
 Display version information and exit.
 .TP
+.BI \-w
+Display your solution with the least number of moves for the level
+specified on the command line (using
+.I NAME
+and/or
+.IR LEVEL )
+as a series of text images, using the same representation as the game
+files (see
+.I FILE FORMATS
+below), and exit.
+.TP
+.BI \-W
+Same as
+.BR \-w ,
+but uses your solution with the least number of pushes.
+.TP
 .BI NAME
 Play only the games in the file
 .IR NAME .
 .I NAME
 can be either the name (or the prefix of a name) of a file in the game
 files directory (i.e., one of the files displayed with the
-.I -l
+.B \-l
 option), or an explicit filename. In the latter case, the saving of
 solutions will be disabled.
 .TP
 .BI \-LEVEL
 Start playing at level
 .IR LEVEL .
-If this option is not used,
+(This number is the same as the index number displayed in the upper
+right corner while playing.) If this option is not used,
 .B csokoban
 begins at the first level you haven't solved yet.
 .SH KEY COMMANDS

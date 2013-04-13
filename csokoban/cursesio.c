@@ -46,15 +46,15 @@ static int	lastline;
  */
 static int	sidebar;
 
+/* FALSE if the program is allowed to ring the bell.
+ */
+static int	silence = FALSE;
+
 /* The name of the program and the file currently being accessed,
  * for use in error messages (declared in gen.h).
  */
 char const     *programname = NULL;
 char const     *currentfilename = NULL;
-
-/* FALSE if the program is allowed to ring the bell.
- */
-int				silence = FALSE;
 
 /*
  * Input and output functions
@@ -286,12 +286,14 @@ static void shutdown(void)
     }
 }
 
-/* Prepare the user interface, and ensure that the terminal has enough
- * room to display anything.
+/* Prepare the user interface, change the terminal modes, and ensure
+ * that the terminal has enough room to display anything.
  */
-void ioprepare(void)
+int ioinitialize(int silenceflag)
 {
     int	y, x;
+
+    silence = silenceflag;
 
     atexit(shutdown);
     if (!initscr())
@@ -303,12 +305,7 @@ void ioprepare(void)
     fieldwidth = (x - 1) / 2 + 2;
     if (sidebar < 1)
 	die("The terminal screen is too darned small!");
-}
 
-/* Change the terminal modes.
- */
-int ioinitialize(void)
-{
     cbreak();
     noecho();
     keypad(stdscr, TRUE);

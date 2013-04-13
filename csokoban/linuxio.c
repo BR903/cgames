@@ -168,15 +168,15 @@ static int			lastline;
  */
 static int			sidebar;
 
+/* FALSE if the program is allowed to ring the bell.
+ */
+static int			silence = FALSE;
+
 /* The name of the program and the file currently being accessed,
  * for use in error messages (declared in gen.h).
  */
 char const		       *programname = NULL;
 char const		       *currentfilename = NULL;
-
-/* FALSE if the program is allowed to ring the bell.
- */
-int				silence = FALSE;
 
 /*
  * Console font access functions
@@ -801,24 +801,22 @@ static void bailout(int signum)
     raise(signum);
 }
 
-/* Prepare the user interface. Make sure the program is running on a
- * Linux console, and the console screen is not too small.
+/* Install signal handlers and initialize the user interface. Make
+ * sure the program is running on a Linux console, and the console
+ * screen is not too small.
  */
-void ioprepare(void)
+int ioinitialize(int silenceflag)
 {
+    struct sigaction	act;
+
+    silence = silenceflag;
+
     if (!measurescreen()) {
 	if (errno)
 	    die("Couldn't access the console!");
 	else
 	    die("The console screen is too darned small!");
     }
-}
-
-/* Install signal handlers and initialize the console.
- */
-int ioinitialize(void)
-{
-    struct sigaction	act;
 
     atexit(shutdown);
 

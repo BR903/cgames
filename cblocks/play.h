@@ -111,4 +111,9 @@ extern void displaygoal(void);
  */
 extern int replaceanswer(int saveinc);
 
+/* Print to stdout a series of images of the current game as the
+ * user's solution is followed.
+ */
+extern int displaygamesolution(void);
+
 #endif
