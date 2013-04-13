@@ -1,0 +1,286 @@
+;; Classic Sliding-Block Puzzles
+
+; Puzzle 1
+
+display Motor-Car Problem by H. E. Dudeney, 1903
+size 3 5
+step 17
+
+initial
+123
+#.#
+..#
+#.#
+456
+
+target
+456
+#.#
+..#
+#.#
+123
+
+equiv 123
+equiv 456
+color 1 0 255 0
+color 2 0 255 0
+color 3 0 255 0
+color 4 255 0 0
+color 5 255 0 0
+color 6 255 0 0
+
+end
+
+; Puzzle 2
+
+display Moving Day Puzzle by Sam Loyd, 1914
+size 6 4
+step 17
+
+initial
+11  AA
+11  AA
+2233BB
+2233BB
+
+target
+    BB
+    BB
+    AA
+    AA
+
+color A 0 255 255
+color B 0 255 0
+
+end
+
+; Puzzle 3
+
+display Hughes Puzzle
+
+size 3 4
+step 21
+
+initial
+A 1
+A 2
+633
+554
+
+target
+
+
+  A
+  A
+
+color A 0 255 255
+
+end
+
+; Puzzle 4
+
+display Pennant Puzzle by L. W. Hardy, 1909 (aka Dad's Puzzle)
+size 4 5
+step 59
+
+initial
+zzaa
+zzbb
+ef
+hgcc
+hgdd
+
+target
+
+
+
+zz
+zz
+
+color z 0 255 255
+
+end
+
+; Puzzle 5
+
+display Blockado by Acme Novelty, 1928
+size 4 6
+step 74
+
+initial
+zz11
+zz22
+  33
+4566
+4577
+89bb
+
+target
+
+
+
+
+zz
+zz
+
+color z 0 255 255
+
+end
+
+; Puzzle 6
+
+display 10 Block Puzzle by A. Filipiak, 1942
+size 4 5
+step 47
+
+initial
+AA12
+AA33
+  45
+BB66
+BB78
+
+target
+BB
+BB
+
+AA
+AA
+
+color A 255 0 0
+color B 0 255 255
+
+end
+
+; Puzzle 7
+
+display Ma's Puzzle by Charles L. A. Diamond, 1927
+size 5 5
+step 23
+
+initial
+aaamm
+ccddm
+beeff
+bbggg
+  h  
+
+target
+   mm
+   bm
+   bb
+
+
+
+end
+
+; Puzzle 8
+
+display L'Ane Rouge (The Red Donkey) by  J. H. Fleming, 1946 (?)
+
+size 4 5
+step 81
+
+initial
+azzb
+azzb
+cdde
+cfge
+h  i
+
+target
+
+
+
+ zz
+ zz
+
+color z 255 0 0
+
+end
+
+; Puzzle 9
+
+display Century Puzzle by Berlekamp, Conway, and Guy, 1982
+
+size 4 5
+step 100
+
+initial
+azzb
+czzd
+ce d
+fe g
+hhii
+
+target
+
+
+
+ zz
+ zz
+
+color z 255 0 0
+
+end
+
+; Puzzle 9
+
+display Traffic Jam Puzzle (aka Tit-Bits #4) by F. L. Babcock, 1928
+size 6 5
+step 132
+
+initial
+zz 33b
+zz 3a4
+558944
+112c67
+122d67
+
+target
+
+
+
+    zz
+    zz
+
+color z 0 255 255
+
+end
+
+; Puzzle 10
+
+display Escott Puzzle by E. B. Escott, 1938
+size 8 10
+step 48
+
+initial
+AABB1111
+AABB1133
+AAAA2233
+AAAA2222
+
+
+4444CCCC
+6644CCCC
+6655DDCC
+5555DDCC
+
+target
+CCCC
+CCCC
+DDCC
+DDCC
+
+
+    AABB
+    AABB
+    AAAA
+    AAAA
+
+color A 255 0 0
+color B 255 0 0
+color C 0 255 0
+color D 0 255 0
+
+end

@@ -1,0 +1,323 @@
+.TH cblocks 6 "September 2000"
+.LO 1
+.SH NAME
+cblocks \- sliding-block puzzles for the Linux console
+.SH SYNOPSIS
+.B cblocks
+[\-hvql] [\-D DIR] [\-S DIR] [NAME] [\-LEVEL]
+.br
+.SH DESCRIPTION
+.B cblocks
+allows one to play sliding-block puzzles on the Linux console.
+.P
+Each game is composed of a collection of blocks of varying sizes
+resting in a tray. The object of puzzle is to move the blocks from
+their starting configuration to some final configuration. The blocks
+cannot be picked up; one is only allowed to slide them into an empty
+area. In some games, the solution simply requires getting the largest
+block from one side of the tray to the other. Other games may require
+swapping the position of two identically-shaped blocks. Some games
+require all the blocks to be in a specific position at the end.
+.P
+There are several puzzles, each with a unique configuration of blocks,
+goals, and enclosing trays. The mechanics of the game are very simple,
+but reaching the solution can be quite challenging.
+.SH OPTIONS
+.TP
+.BI \-h
+Display a brief summary of the command\-line options and exit.
+.TP
+.BI \-l
+List the available puzzle files and exit.
+.TP
+.BI \-q
+Play quietly; don't ring the bell during the game.
+.TP
+.BI \-S " DIR"
+Save your solutions in the directory
+.I DIR
+instead of the default.
+.TP
+.BI \-v
+Display version information and exit.
+.TP
+.BI NAME
+Play only the games in the file
+.IR NAME .
+.I NAME
+can be either the name (or the prefix of a name) of a file in the
+puzzle files directory (i.e., one of the files displayed with the
+.I \-l
+option), or an explicit filename. In the latter case, the saving of
+solutions will be disabled.
+.TP
+.BI \-LEVEL
+Start playing at level
+.IR LEVEL .
+If this option is not used,
+.B cblocks
+begins with the first unsolved puzzle.
+.SH KEY COMMANDS
+While a game is in progress, the keys listed below (and the mouse, if
+available) can be used as follows:
+.TP
+.BI hjkl
+Use the vi keys (h=left, j=down, k=up, l=right) to move the selection
+between blocks. If there is more than one block in the given direction
+from the currently selected block, the nearest one will be taken.
+Blocks can also be selected using the left mouse button.
+.TP
+.BI arrows
+The arrow keys can be used for movement as well.
+.TP
+.BI tab
+The tab key changes the current block to the next one (where "next" is
+defined by an internal ordering). This key command is sometimes
+necessary when a block does not lie in an orthogonal direction from
+any of its closest neighbors.
+.TP
+.BI HJKL
+Using shift with the vi keys moves the selected block in the
+appropriate direction. Blocks may also be moved by dragging with the
+left mouse button.
+.TP
+.BI g
+Display the goal -- i.e., where each block must be moved to. Blocks
+that do not appear in the goal display are not required to be in any
+particular position in order to solve the puzzle.
+.TP
+.BI x
+Undo the previous move.
+.TP
+.BI X
+Undo the previous step. A "step" is a sequence of moves that all
+operate on the same block. Clicking the right mouse button will also
+undo the previous step.
+.TP
+.BI z
+Redo the last move (presuming the last move was an undo).
+.TP
+.BI Z
+Redo the last step.
+.TP
+.BI s
+Save the current position. There is no limit on the number of
+positions that can be saved. (A capital
+.B S
+is displayed on the right when one or more positions have been saved.)
+.TP
+.BI r
+Restore the last saved position. Undo and redo information is also
+restored.
+.TP
+.BI S
+Save the current position to disk. The position will be available via
+redo whenever you return to this level. Note that this option is only
+available for an unsolved puzzle. The position will be remembered
+until a complete solution is found or until this command is used
+again.
+.TP
+.BI R
+Restart the game from the beginning. Undo and redo information is
+lost, but saved positions are retained.
+.TP
+.BI P
+Go to the previous level, quitting the current one.
+.TP
+.BI N
+Go to the next level, quitting the current one.
+.TP
+.BI q
+Quit; exit the program.
+.TP
+.BI Ctrl\-L
+Redraw the screen.
+.TP
+.BI ?
+Display brief help on the key commands.
+.SH SOLUTIONS
+When a new and/or better solution for a puzzle is found, the game
+automatically stores it in your personal save directory. (Better is
+defined as a solution that requires fewer steps.) If you return to
+that puzzle again, your last solution is loaded into the redo
+information. This permits you to view your solution, and/or use it as
+the start of finding a better solution.
+.P
+The files containing your solutions are given the same name as the
+puzzle files, and solutions appear in the same order. Solutions are
+separated from each other by blank lines, and/or lines beginning with
+a semicolon. Each solution is stored as a sequence of strings of the
+following format:
+.P
+.I Y,X:MOVES
+.P
+The values
+.I Y
+and
+.I X
+provide the coordinates of the block being moved. (The coordinates
+indicate the block's position at the time the moves are applied.)
+.I MOVES
+is a sequence of
+.I h j k l
+characters, representing moves left, down, up, and right respectively.
+.P
+Each solution is prefixed by a line indicating the number of steps and
+moves in the solution.
+.P
+Partial solutions (i.e., saved positions) are also stored in this
+file; such solutions are indicated by an ellipsis at the end of the
+list of moves.
+.P
+The solution files are meant to be human\-readable, but not
+human\-editable.
+.B cblocks
+recreates these files each time their contents change. If you must
+edit the solution files by hand, make backups first.
+.SH PUZZLE FILE FORMAT
+A puzzle file contains a number of puzzles that together make up a
+series. Each puzzle is described by a series of lines in the file,
+each section ending with a line that says
+.IR end .
+Besides
+.IR end ,
+the following lines are recognized:
+.TP
+.B display TEXT
+Provides a brief line of text to be displayed to the user along with
+the puzzle.
+.TP
+.B step MIN
+Defines the number of steps in the shortest solution. (This may
+actually be the true required minimum, or simply the number of steps
+in the shortest known solution.)
+.TP
+.B size WIDTH HEIGHT
+Defines the size of the puzzle, not including the outer perimeter.
+.TP
+.BI initial
+Introduces a map of the initial configuration of blocks. The map
+itself appears on the lines immediately following. (See below for a
+description of the map syntax.)
+.TP
+.BI hint
+Introduces a map. This option is ignored by
+.IR cblocks ,
+and is recognized only for compatibility.
+.TP
+.BI target
+Introduces a map of the solution, or goal. (See below.)
+.TP
+.B equiv BLOCKS
+Indicates that two or more blocks are to be treated as
+interchangeable for determining when the user has arrived at the
+solution.
+.I BLOCKS
+is a string of characters, each character representing a block that
+appears in the
+.I target
+map.
+.TP
+.B color BLOCK R G B
+Defines the preferred color to use in displaying a block.
+.I BLOCK
+is a character identifying a block in the maps.
+.IR R ,
+.IR G ,
+and
+.I B
+are the red, green, and blue values of the color, each value being in
+the range of 0 to 255. (Please note that on the console, there are
+only eight colors available, including black.) Blocks without a
+.I color
+line are white by default.
+.TP
+.B key BLOCK
+Defines which block is capable of opening doors. If a puzzle contains
+a door, the door acts like a wall until the "key" block passes through
+it, after which any block may pass. Only one block may have this
+attribute in a puzzle.
+.TP
+.BI etchtarget
+Indicates that the puzzle should be displayed with the positions of
+the blocks in the
+.I target
+map visible in the "background". This option is useful mainly when
+only one or two easily\-distinguished blocks make up the solution's
+requirements.
+.P
+In addition to the above, lines beginning with
+.IR image ,
+.IR label ,
+and
+.I labeloffset
+are recognized for the sake of compatibility but have no effect.
+.P
+The
+.I initial
+line introduces a pictorial map of the puzzle's initial configuration.
+The next HEIGHT lines of the file (where HEIGHT is defined by the
+.I size
+parameter) are read in place and used to lay out the puzzle.
+.P
+Within this map, any alphanumeric character can be used to represent a
+block. The same character appearing in (orthogonally) adjacent
+positions represents a single block larger than one square unit. In
+addition,
+.B #
+can be used to indicate a cell filled by a wall or other immobile
+obstacle, and
+.B %
+can be used to indicate a cell containing a door (or part of a door).
+A
+.B \.
+(dot) or a space marks an empty cell.
+.P
+The
+.I target
+line introduces a similar map, this time representing the required
+positions of blocks in order to solve the puzzle. Any blocks which do
+not appear in the
+.I target
+map have no requirements as to their position in the solution.
+.P
+The same character may be reused to represent more than one block, so
+long as the blocks are not adjacent in the
+.I initial
+map. In addition, the
+.I $
+character may be used freely to represent blocks that are one unit
+square. However, in neither case can blocks so identified appear in
+the
+.I target
+map, or in the
+.IR equiv ,
+.IR color ,
+or
+.I key
+lines.
+.SH DIRECTORIES
+.TP
+/usr/local/share/cblocks
+The default directory searched for puzzle files.
+.TP
+~/.cblocks
+The default directory for storing solutions.
+.SH ENVIRONMENT
+.TP
+BLKSAVEDIR
+Can be used to contain an alternate directory for storing solutions.
+.SH LICENSE
+.B cblocks
+is copyright (C) 2000 by Brian Raiter
+.IR <breadbox@muppetlabs.com> .
+.P
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or (at
+your option) any later version.
+.P
+This program is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the file
+COPYING, included in the distribution, for more details.

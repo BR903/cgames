@@ -1,0 +1,185 @@
+.TH cmines 6 "September 2000"
+.LO 1
+.SH NAME
+cmines \- minesweeper for the Linux console
+.SH SYNOPSIS
+.B cmines
+[\-cehrtv] [\-s FILE] [CONFIG]
+.br
+.SH DESCRIPTION
+.B cmines
+is an implementation of the game of minesweeper for the Linux console.
+.P
+The object of the game is to expose all the cells in a rectangular
+grid which are not mined. When an unmined cell is exposed, the number
+of neighboring cells which are mined is shown. By applying this
+information, you attempt to proceed through the minefield.
+.SH OPTIONS
+.TP
+.BI \-c
+Accept mouse clicks at the time the button is pressed. By default,
+left and right mouse clicks have no effect until the button is
+released, and then only if the mouse has not been moved off of the
+cell over which it was pressed. Use of this option removes this
+"safety feature".
+.TP
+.BI \-e
+Display emoticons indicating the current status. By default, no
+emoticons are displayed.
+.TP
+.BI \-h
+Display a brief summary of the command\-line options and exit.
+.TP
+.BI \-r
+Accept mouse clicks to the right of a cell. By default, mouse clicks
+are ignored unless the mouse cursor is directly over a cell.
+.TP
+.BI \-q
+Play quietly; don't ring the bell during the game.
+.TP
+.BI \-s " FILE"
+Use
+.I FILE
+as the configuration file instead of the default.
+.TP
+.BI \-t
+Update the timer continuously. By default, the timer is only updated
+when a key is pressed, or when a mouse button is pressed or released.
+This is done because updating the screen necessarily erases the mouse
+cursor. Using this option causes the mouse cursor to disappear while
+it is not moving. (This option is automatically enabled if no mouse
+support is available.)
+.TP
+.BI \-v
+Display version information and exit.
+.TP
+.BI CONFIG
+Select
+.IR CONFIG
+as the starting configuration.
+.SH KEY COMMANDS
+While a game is in progress, the keys listed here have the following
+effects.
+.TP
+.BI hjkl
+The vi keys move the cursor in the traditional fashion (h=left,
+j=down, k=up, l=right).
+.TP
+.BI HJKL
+Using shift moves the cursor three steps at a time.
+.TP
+.BI arrows
+The arrow keys can be used for movement as well.
+.TP
+.BI .
+Place a flag on the current cell. Use this to mark cells you believe
+to be mined.
+.TP
+.BI space
+Expose the current cell. If the current cell is already exposed, the
+spacebar behaves as per the enter key. If the current cell is flagged,
+nothing happens.
+.TP
+.BI enter
+Expose the unflagged neighbors of the current cell. If there are fewer
+flagged neighbors than the number of mined neighbors, nothing
+happens. If there are
+.I more
+flags than mines, a warning bell is rung.
+.TP
+.BI p
+Peek at the current cell. If the cell is mined, a warning bell is
+rung; otherwise the cell is exposed. (This command is provided to help
+relieve frustration when one is truly stuck and a little assistance
+would permit one to continue playing further.) Peeking automatically
+disqualifies a game from setting a new record.
+.TP
+.BI q
+Quit. The current game is ended.
+.TP
+.BI Q
+Quit the program.
+.TP
+.BI Ctrl\-L
+Redraw the screen.
+.TP
+.BI ?
+Display online help. The complete list of configurations, and your
+best times for each, are also displayed.
+.P
+After a game has ended, or before a new game has started, the
+following key commands are available:
+.TP
+.BI n
+Start a new game with the same configuration. This key is ignored if a
+game is currently in progress.
+.TP
+.BI q
+Quit the program.
+.P
+You may also type the initial letter of a configuration to use that
+configuration for the next game.
+.SH MOUSE COMMANDS
+While a game is in progress, the mouse buttons operate as follows:
+.TP
+.BI left
+Expose the selected cell, or expose its neighbors if the cell is
+already exposed.
+.TP
+.BI right
+Flag the selected cell.
+.TP
+.BI middle
+Expose the selected cell's neighbors.
+.P
+Using the left and right buttons simultaneously is equivalent to using
+the middle button.
+.SH CONFIGURATIONS
+By default, there are three configurations:
+.IR Beginner ,
+.IR Intermediate ,
+and
+.IR Expert .
+These configurations can be changed, and others may be added, by
+editing the configuration file, which by default is the file
+.I .cminesrc
+in your home directory.
+.P
+Each line of this file should be in the following format:
+.P
+.B "NAME: WIDTH HEIGHT MINES ..."
+.TP
+.BI NAME
+The name of the configuration. Every configuration must begin with a
+unique letter. (It is also inadvisable to begin a configuration with
+the letters n or q.)
+.TP
+.BI WIDTH
+The width of the playing field.
+.TP
+.BI HEIGHT
+The height of the playing field.
+.TP
+.BI MINES
+The number of mines to locate.
+.P
+At the end of the line, your best time for that configuration is
+stored.
+.SH FILES
+.TP
+~/.cminesrc
+The default configuration file.
+.SH LICENSE
+.B cmines
+is copyright (C) 2000 by Brian Raiter
+.IR <breadbox@muppetlabs.com> .
+.P
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or (at
+your option) any later version.
+.P
+This program is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the file
+COPYING, included in the distribution, for more details.

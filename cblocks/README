@@ -1,0 +1,91 @@
+cblocks provides the user with a chance to play sliding-block puzzles
+on the Linux console. The object of each game is to slide the blocks
+into their final destination. The blocks cannot be picked up or turned
+around; they can only slide into an unoccupied space. This
+distribution comes with ten puzzles included; more can be easily
+added.
+
+INSTALLING
+
+Since cblocks is written specifically for Linux 2.x, no configure
+script is needed. Use "make" to build cblocks. By default, "make
+install" will install cblocks under /usr/local/games, and the puzzles
+in /usr/local/share/cblocks. These directories can be changed by
+editing the first few lines of the Makefile.
+
+ALTERNATE VERSION
+
+An alternate version of cblocks is included, which uses curses and
+therefore does not require the Linux console. It isn't quite as
+pretty, and lacks the highly useful mouse support, but otherwise it
+has all the same functionality. To build this version:
+
+1. change the symbolic link userio.c to point to cursesio.c instead of
+   linuxio.c;
+2. uncomment the LOADLIBES line in the Makefile;
+3. rebuild.
+
+BACKGROUND
+
+Sliding-block puzzles apparently came into being soon after Sam Loyd's
+14-15 puzzle attained such popularity. These puzzles expanded on the
+original idea by using pieces of different shapes. Unlike the 14-15
+puzzle, the theory of which was worked out relatively quickly, most
+sliding-block puzzles are quite difficult to analyze mathematically.
+They therefore become puzzles that challenge our intuition, and
+eventually yield to insight into their peculiar internal logic.
+
+The first few puzzles that come with this distribution are early
+examples of the genre, and should provide the user with a good
+introduction. The fourth puzzle is probably the first canonical
+example of a sliding-block puzzle, and should give the novice user a
+good bit of trouble to solve. It was originally marketed as "The
+Penant Puzzle". Each block bore the name of a major city, with the
+large block being the home team. The large block is therefore to be
+maneuvered past the others and into first place. Since then, it has
+been marketed under several guises. The most successful was under the
+name "Dad's Puzzler", with the blocks representing different pieces of
+furniture in a crowded room, the large block being a grand piano that
+needed to be moved to their other side. The name "Dad's Puzzle" is
+what it has now become generally known by.
+
+Probably the puzzle that most people will have seen before is the
+eighth one in this collection, "L'Ane Rouge", or The Red Donkey (and
+since then under many other names). It is listed as first being
+marketed in 1946, although Martin Gardner reports others having seen
+it or some version of it in the 1930s. It is signifcantly more
+difficult than Dad's Puzzle, and solving it should whet the user's
+appetite for more.
+
+The next puzzle is the only puzzle in this collection that does not
+come from the early 20th century, and is named the Century Puzzle.
+Berlekamp, Conway, and Guy introduced it in "Winning Ways", and claim
+it was found from doing a mathematical search for the hardest puzzle
+of the same genre as L'Ane Rouge. (They also describe the
+Century-and-a-Half puzzle, which I did not include. It begins the same
+as the Century Puzzle but requires moving all the pieces until the
+puzzle has been turned upside-down. Users can easily add this one to
+the collection if they so desire.)
+
+REFERENCES
+
+Gardner, Martin: "Martin Gardner's Sixth Book of Mathematical
+Diversions from Scientific American", chapter 7. As is often the case,
+Martin Gardner provides one of the earliest written descriptions of
+this genre and its history.
+
+Berlekamp, Elwyn; Conway, John; and Guy, Richard: "Winning Ways,
+volume 2", chapter 24. Berlekamp, Conway, and Guy provide a complete
+analysis of Dad's Puzzle, L'Ane Rouge, and the Century Puzzle.
+
+Hordern, Edward: "Sliding-Piece Puzzles". The definitive book on the
+subject, apparently. (If anyone out there can provide me with a copy of
+this book, I will gladly pay a finder's fee.)
+
+<http://www.johnrausch.com/SlidingBlockPuzzles/>: "Nick Baxter's
+Sliding-Block Puzzle Page". Nick Baxter's wonderful page has many more
+puzzles available, playable via a Java applet.
+
+
+Brian Raiter <breadbox@muppetlabs.com>
+September, 2000
