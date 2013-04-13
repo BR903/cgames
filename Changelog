@@ -1,0 +1,11 @@
+9 Sept 2000: Version 2.0
+
+* cmines and cblocks are finished and ready for release.
+* Version numbers have been assigned, somewhat arbitrarily, to the
+  individual programs.
+* Minor bug fixes in the code and documentation for csokoban.
+
+2 Sept 2000: version 1.0
+
+* Released to the public; includes csokoban only. (The others need to
+  be cleaned up and documented.)
