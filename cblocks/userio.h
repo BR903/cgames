@@ -9,6 +9,13 @@
 
 #include	"cblocks.h"
 
+/* Special codes to identify multibyte keystrokes.
+ */
+#define	ARROW_N		(1024 + NORTH)
+#define	ARROW_E		(1024 + EAST)
+#define	ARROW_S		(1024 + SOUTH)
+#define	ARROW_W		(1024 + WEST)
+
 /* Initialize the user interface for our program. This functions
  * checks to make sure it can do the necessary I/O, and sets
  * fieldheight and fieldwidth, but does not do anything to the
@@ -46,7 +53,8 @@ extern char getrgbindex(int r, int g, int b);
  */
 extern int displaygame(cell const *map, int ysize, int xsize,
 		       char const *seriesname, char const *levelname,
-		       int level, char const *colors, int currblockid,
+		       int level, char const *colors,
+		       int currblockid, int ycursor, int xcursor,
 		       int saved, int movecount, int stepcount,
 		       int beststepcount, int bestmovecount,
 		       int beststepknown);

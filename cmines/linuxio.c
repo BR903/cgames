@@ -16,9 +16,56 @@
 #include	<termios.h>
 #include	<sys/time.h>
 #include	<sys/ioctl.h>
-#include	<gpm.h>
 #include	"cmines.h"
 #include	"userio.h"
+
+#ifdef NOMOUSE
+
+/* Stubs and empty macros to provide a no-op mouse interface.
+ */
+
+#define	mousegetchar	getchar
+#define	openmouse()	FALSE
+#define	closemouse()	((void)0)
+#define	setlastevent(e)	((void)0)
+#define	hidelastevent()	((void)0)
+#define	drawmousepos()	((void)0)
+
+static int mousefd = -1;
+
+#else
+
+/* The GPM mouse interface.
+ */
+
+#include	<gpm.h>
+
+/* Aliases for GPM internals.
+ */
+#define	mousefd		gpm_fd
+#define	mousegetchar	Gpm_Getchar
+
+/* The parameters of the gpm hook.
+ */
+static Gpm_Connect	gpmconnection;
+#define	openmouse()	(gpm_zerobased = TRUE, \
+			 gpm_handler = mousehandler, \
+			 gpmconnection.eventMask = GPM_DOWN | GPM_UP, \
+			 gpmconnection.defaultMask = GPM_MOVE | GPM_HARD, \
+			 gpmconnection.minMod = 0, \
+			 gpmconnection.maxMod = 0, \
+			 Gpm_Open(&gpmconnection, 0) >= 0)
+#define	closemouse()	(Gpm_Close())
+
+/* The last event received from gpm. The y field is set to -2 if the
+ * keyboard has been used since the last gpm event.
+ */
+static Gpm_Event lastgpm;
+#define	setlastevent(e)	(lastgpm = (e))
+#define	hidelastevent()	(lastgpm.y = -2)
+#define	drawmousepos()	((void)(lastgpm.y > -2 && GPM_DRAWPOINTER(&lastgpm)))
+
+#endif
 
 /* If NSIG is not provided by signal.h, blithely assume 32 is big enough.
  */
@@ -86,22 +133,13 @@ static time_t		starttime = -1;
  */
 static int		timer = 0;
 
-/* The parameters of the gpm hook.
- */
-static Gpm_Connect	gpmconnection;
-
-/* The last event received from gpm. The y field is set to -2 if the
- * keyboard has been used since the last gpm event.
- */
-static Gpm_Event	lastevent;
-
 /* TRUE if the terminal is currently in raw mode.
  */
 static int		inrawmode = FALSE;
 
-/* TRUE if the program has hooked into gpm.
+/* TRUE if the program has hooked into the mouse.
  */
-static int		usinggpm = FALSE;
+static int		usingmouse = FALSE;
 
 /* TRUE if the display needs to be redrawn now.
  */
@@ -233,8 +271,7 @@ static void out(char const *fmt, ...)
     } else if (size) {
 	write(STDOUT_FILENO, out, size);
 	size = 0;
-	if (lastevent.y != -2)
-	    GPM_DRAWPOINTER(&lastevent);
+	drawmousepos();
     }
 }
 
@@ -410,18 +447,18 @@ static int getkey(void)
     char		ch;
 
     for (;;) {
-	if (starttime > 0 && (updatetimer || !usinggpm))
+	if (starttime > 0 && (updatetimer || !usingmouse))
 	    displaytimer();
 	waitfor.tv_sec = 1;
 	waitfor.tv_usec = 0;
 	FD_ZERO(&in);
 	FD_ZERO(&empty);
 	FD_SET(STDIN_FILENO, &in);
-	if (gpm_fd >= 0) {
-	    FD_SET(gpm_fd, &in);
-	    max = (STDIN_FILENO > gpm_fd ? STDIN_FILENO : gpm_fd) + 1;
+	if (mousefd >= 0) {
+	    FD_SET(mousefd, &in);
+	    max = (STDIN_FILENO > mousefd ? STDIN_FILENO : mousefd) + 1;
 	    if (select(max, &in, &empty, &empty, &waitfor) > 0)
-		return Gpm_Getchar();
+		return mousegetchar();
 	} else {
 	    if (select(STDIN_FILENO + 1, &in, &empty, &empty, &waitfor) > 0) {
 		read(STDIN_FILENO, &ch, 1);
@@ -446,7 +483,7 @@ int input(void)
     static int	lastkey = 0;
     int		key;
 
-    lastevent.y = -2;
+    hidelastevent();
     if (lastkey) {
 	key = lastkey;
 	lastkey = 0;
@@ -470,6 +507,8 @@ int input(void)
     return key;
 }
 
+#ifndef NOMOUSE
+
 /* Handle mouse activity. The screen coordinates are translated into a
  * field's cell position and mousecallback() is called. If the left
  * and right mouse buttons are both depressed, it is automatically
@@ -482,7 +521,7 @@ static int mousehandler(Gpm_Event *event, void *clientdata)
     int	mstate;
 
     (void)clientdata;
-    lastevent = *event;
+    setlastevent(*event);
     if (!allowoffclicks && (event->x & 1))
 	return 0;
     if (event->type & (GPM_DOWN | GPM_UP)) {
@@ -502,21 +541,21 @@ static int mousehandler(Gpm_Event *event, void *clientdata)
     return mousecallback((event->y - 1) * XSIZE + (event->x - 2) / 2, mstate);
 }
 
+#endif
+
 /*
  * Top-level functions
  */
 
-/* Prepare gpm and the console for use by the program.
+/* Prepare the console and the mouse for use by the program.
  */
 static int startup(void)
 {
     if (!setrawmode(TRUE))
 	return FALSE;
 
-    usinggpm = Gpm_Open(&gpmconnection, 0) >= 0;
-    if (usinggpm)
-	gpm_handler = mousehandler;
-    lastevent.y = -2;
+    usingmouse = openmouse();
+    hidelastevent();
 
     erasescreen();
     return TRUE;
@@ -526,9 +565,9 @@ static int startup(void)
  */
 static void shutdown(void)
 {
-    if (usinggpm) {
-	Gpm_Close();
-	usinggpm = FALSE;
+    if (usingmouse) {
+	closemouse();
+	usingmouse = FALSE;
     }
     if (inrawmode)
 	setrawmode(FALSE);
@@ -606,12 +645,6 @@ int ioinitialize(int updatetimerflag, int showsmileysflag, int silenceflag,
     sigaction(SIGILL, &act, prevhandler + SIGILL);
     sigaction(SIGBUS, &act, prevhandler + SIGBUS);
     sigaction(SIGFPE, &act, prevhandler + SIGFPE);
-
-    gpm_zerobased = TRUE;
-    gpmconnection.eventMask = GPM_DOWN | GPM_UP;
-    gpmconnection.defaultMask = GPM_MOVE | GPM_HARD;
-    gpmconnection.minMod = 0;
-    gpmconnection.maxMod = 0;
 
     return startup();
 }

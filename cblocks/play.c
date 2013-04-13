@@ -66,6 +66,7 @@ void initgamestate(void)
 {
     memcpy(state.map, state.game->map, sizeof state.map);
     state.currblock = state.game->equivs[KEYID] ? KEYID : FIRSTID;
+    state.ycurrpos = state.xcurrpos = 0;
     initmovelist(&state.undo);
     copymovelist(&state.redo, &state.game->answer);
     state.movecount = 0;
@@ -284,6 +285,7 @@ static void domove(action move)
 {
     move.door = moveblock(move.id, move.dir);
     state.currblock = move.id;
+    state.ycurrpos = state.xcurrpos = 0;
     ++state.movecount;
     if (!state.undo.count ||
 		move.id != state.undo.list[state.undo.count - 1].id)
@@ -309,6 +311,40 @@ static void resetdoors(void)
  * Exported movement functions
  */
 
+int movecursor(int dir)
+{
+    cell const *map;
+    int		ypos = 0, xpos = 0, y, x;
+
+    if (state.ycurrpos) {
+	ypos = state.ycurrpos;
+	xpos = state.xcurrpos;
+    } else if (state.currblock) {
+	map = state.map + XSIZE;
+	for (y = 1 ; !ypos && y < state.game->ysize - 1 ; ++y, map += XSIZE) {
+	    for (x = 1 ; !xpos && x < state.game->xsize - 1 ; ++x) {
+		if (blockid(map[x]) == state.currblock) {
+		    ypos = y;
+		    xpos = x;
+		}
+	    }
+	}
+    }
+    if (!ypos || !xpos)
+	return FALSE;
+
+    ypos += dirydelta[dir];
+    xpos += dirxdelta[dir];
+    if (ypos < 1 || xpos < 1 || ypos >= state.game->ysize - 1
+			     || xpos >= state.game->xsize - 1)
+	return FALSE;
+
+    state.currblock = blockid(state.map[ypos * XSIZE + xpos]);
+    state.ycurrpos = ypos;
+    state.xcurrpos = xpos;
+    return TRUE;
+}
+
 /* Unapply the last move on the undo list, reversing what was done in
  * domove() and adding the move to the redo list.
  */
@@ -323,6 +359,7 @@ int undomove(void)
     addtomovelist(&state.redo, move);
     moveblock(move.id, backwards(move.dir));
     state.currblock = move.id;
+    state.ycurrpos = state.xcurrpos = 0;
     --state.movecount;
     if (!state.undo.count ||
 		move.id != state.undo.list[state.undo.count - 1].id)
@@ -400,11 +437,12 @@ int newmove(int dir)
 {
     action	move;
 
-    if (!canmove(state.currblock, dir))
+    if (!state.currblock || !canmove(state.currblock, dir))
 	return FALSE;
     if (state.undo.count) {
 	move = state.undo.list[state.undo.count - 1];
-	if (move.id == state.currblock && move.dir == backwards(dir) && !move.door)
+	if (move.id == state.currblock && move.dir == backwards(dir)
+				       && !move.door)
 	    return undomove();
     }
     if (state.redo.count) {
@@ -425,6 +463,8 @@ void rotatefromcurrblock(void)
     int		y, x;
     int		id, n;
 
+    if (!state.currblock)
+	return;
     id = state.currblock + 256;
     map = state.map;
     for (y = 1, map += XSIZE ; y < state.game->ysize - 1 ; ++y, map += XSIZE) {
@@ -439,6 +479,7 @@ void rotatefromcurrblock(void)
 	}
     }
     state.currblock = id % 256;
+    state.ycurrpos = state.xcurrpos = 0;
 }
 
 /* Change the current block to the block that most nearly lies next to
@@ -447,6 +488,9 @@ void rotatefromcurrblock(void)
 int shiftfromcurrblock(int dir)
 {
     int	id;
+
+    if (!state.currblock)
+	return FALSE;
 
     if (dir == NORTH)
 	id = shiftfromblock(state.game->xsize - 1, -1, -1, 1,
@@ -470,6 +514,7 @@ int shiftfromcurrblock(int dir)
     if (id < 0)
 	return FALSE;
     state.currblock = id;
+    state.ycurrpos = state.xcurrpos = 0;
     return TRUE;
 }
 
@@ -528,11 +573,11 @@ void freesavedstates(void)
  */
 static void outputmapstate(void)
 {
-    static char	charids[] = "ONBHUEZXDQ8MWKRGAVS523694PFTYCL7";
-    char	obj[3] = "  ";
-    cell       *map;
+    static char	charids[32] = "ONBHUEZXDQ8MWKRGAVS523694PFTYCL7";
+    cell const *map;
     int		spaces, id;
     int		y, x;
+    char	obj;
 
     if (state.stepcount)
 	printf("== step %d\n", state.stepcount);
@@ -542,23 +587,20 @@ static void outputmapstate(void)
 	for (x = 0 ; x < state.game->xsize ; ++x) {
 	    id = blockid(map[x]);
 	    if (id) {
-		obj[0] = id == WALLID ? '#'
-		       : id == KEYID ? '0' : charids[(id - FIRSTID) % 32];
-		obj[1] = map[x] & EXTENDEAST ? obj[0] : '\0';
+		obj = id == WALLID ? '#' : id == KEYID
+				   ? '0' : charids[(id - FIRSTID) % 32];
 	    } else if ((map[x] & DOORSTAMP_MASK) &&
 				doortime(map[x]) > state.movecount + 1) {
-		obj[0] = '+';
-		obj[1] = map[x] & FEXTENDEAST ? '+' : '\0';
+		obj = '%';
 	    } else {
-		spaces += 2;
+		++spaces;
 		continue;
 	    }
-	    printf("%*s%s", spaces, "", obj);
-	    spaces = obj[1] ? 0 : 1;
+	    printf("%*s%c", spaces, "", obj);
+	    spaces = 0;
 	}
 	putchar('\n');
     }
-
 }
 
 /* Print to stdout a series of images of the map as the moves of a
@@ -621,8 +663,9 @@ int drawscreen(int index)
 {
     return displaygame(state.map, state.game->ysize, state.game->xsize,
 		       state.game->seriesname, state.game->name, index + 1,
-		       state.game->colors, state.currblock, !!stack,
-		       state.movecount, state.stepcount,
+		       state.game->colors, state.currblock,
+		       state.ycurrpos, state.xcurrpos,
+		       !!stack, state.movecount, state.stepcount,
 		       state.game->beststepcount, state.game->answer.count,
 		       state.game->beststepknown);
 }
@@ -632,14 +675,18 @@ int drawscreen(int index)
 void displaygoal(void)
 {
     static cell	savedmap[MAXHEIGHT * MAXWIDTH];
-    int		currblock;
+    int		currblock, ycurrpos, xcurrpos;
 
     memcpy(savedmap, state.map, sizeof savedmap);
     memcpy(state.map, state.game->goal, sizeof state.map);
     currblock = state.currblock;
-    state.currblock = 0;
+    ycurrpos = state.ycurrpos;
+    xcurrpos = state.xcurrpos;
+    state.currblock = state.ycurrpos = state.xcurrpos = 0;
     drawscreen(-1);
     state.currblock = currblock;
+    state.ycurrpos = ycurrpos;
+    state.xcurrpos = xcurrpos;
     memcpy(state.map, savedmap, sizeof savedmap);
 }
 
@@ -667,6 +714,7 @@ int mousecallback(int y, int x, int mstate)
 	if (!n || n == WALLID)
 	    return 0;
 	state.currblock = n;
+	state.ycurrpos = state.xcurrpos = 0;
 	startpos = lastpos = pos;
 	startmovecount = state.undo.count;
 	return '\f';

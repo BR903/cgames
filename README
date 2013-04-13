@@ -8,15 +8,23 @@ Three games are included with this distribution:
 * csokoban (sokoban).
 
 Alternate versions are included, which do not need to be played on the
-Linux console. However, these versions lack the font-altered images
-and mouse support.
+console. However, these versions lack the font-altered images and full
+mouse support.
 
 INSTALLING
 
-In brief: go to one of the subdirectories cblocks, cmines, csokoban,
-and type "make" and "make install". Running configure is not
-necessary. See the README files in each subdirectory for more
-information.
+To build and install all the games, the usual incantation will
+suffice: ./configure ; make ; make install.
+
+Useful arguments to ./configure include: --bindir, which defaults to
+/usr/local/games, --mandir, which defaults to /usr/local/man, and
+--datadir, which defaults to /usr/local/share.
+
+In addition, you can use --with-ncurses to build the ncurses-based
+versions of the programs instead of the Linux console versions, and
+--disable-mouse to build the programs without mouse support.
+
+See the README files in each directory for more information.
 
 JUSTIFICATION
 

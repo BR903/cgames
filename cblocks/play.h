@@ -16,6 +16,8 @@
 typedef	struct gamestate {
     gamesetup  *game;			/* the puzzle specification */
     int		level;			/* the level number of the game */
+    short	ycurrpos;		/* the player's current position */
+    short	xcurrpos;		/* the player's current position */
     short	currblock;		/* the player's current position */
     int		movecount;		/* number of moves made so far */
     int		stepcount;		/* number of pushes made so far */
@@ -83,6 +85,8 @@ extern void rotatefromcurrblock(void);
  */
 extern int shiftfromcurrblock(int dir);
 
+extern int movecursor(int dir);
+
 /* Save the current state of the game on a stack.
  */
 extern void savestate(void);
@@ -104,10 +108,12 @@ extern int drawscreen(int index);
  */
 extern void displaygoal(void);
 
-/* Replace the user's solutions with the just-executed solution (taken
- * from the undo list) if it beats either or both of them for least
- * number of moves/pushes. FALSE is returned if no solution was
- * replaced.
+/* Replace the user's solution with the just-executed solution (taken
+ * from the undo list) if it beats the existing solution for least
+ * number of steps. FALSE is returned if no solution was replaced. If
+ * saveinc is TRUE, then the user's "solution" is not actually
+ * complete, in which case it will only be saved if no complete
+ * solution is currently saved.
  */
 extern int replaceanswer(int saveinc);
 

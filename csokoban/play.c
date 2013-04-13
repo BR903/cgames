@@ -417,9 +417,12 @@ int drawscreen(int index)
  * needs to be reversed when it is copied. TRUE is returned if any
  * solution was replaced.
  */
-int replaceanswers(void)
+int replaceanswers(int saveinc)
 {
     int		i, n;
+
+    if (saveinc && (state.game->movebestcount || state.game->pushbestcount))
+	return FALSE;
 
     n = 0;
     if (!state.game->movebestcount
@@ -430,7 +433,8 @@ int replaceanswers(void)
 	i = state.undo.count;
 	while (i--)
 	    addtomovelist(&state.game->moveanswer, state.undo.list[i]);
-	state.game->movebestcount = state.movecount;
+	if (!saveinc)
+	    state.game->movebestcount = state.movecount;
 	state.game->movebestpushcount = state.pushcount;
 	++n;
     }
@@ -443,7 +447,8 @@ int replaceanswers(void)
 	while (i--)
 	    addtomovelist(&state.game->pushanswer, state.undo.list[i]);
 	state.game->pushbestcount = state.pushcount;
-	state.game->pushbestmovecount = state.movecount;
+	if (!saveinc)
+	    state.game->pushbestmovecount = state.movecount;
 	++n;
     }
 

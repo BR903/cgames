@@ -4,26 +4,18 @@ boxes into the specially marked spaces. The boxes cannot be pulled,
 only pushed, and only one box can be moved at a time. There are many
 levels, each with a unique configuration of walls, boxes, and goal
 spaces. The mechanics of the game are very simple, but finding
-solutions can sometimes be extremely challenging.
+solutions can be extremely challenging.
 
 INSTALLING
 
-Since csokoban is written specifically for Linux 2.x, no configure
-script is needed. Use "make" to build csokoban. By default, "make
-install" will install csokoban under /usr/local/games, and the puzzles
-in /usr/local/share/csokoban. These directories can be changed by
-editing the first few lines of the Makefile.
-
-ALTERNATE VERSION
-
-An alternate version of csokoban is included, which uses curses and
+An alternate version of csokoban is included, which uses ncurses and
 therefore does not require the Linux console. It isn't as pretty, but
-it has all the same functionality. To build this version:
+it has all the same functionality. To build this version, include the
+--with-ncurses flag when running ./configure at the top level
+directory.
 
-1. change the symbolic link userio.c to point to cursesio.c instead of
-   linuxio.c;
-2. uncomment the LOADLIBES line in the Makefile;
-3. rebuild.
+By default, the executable is copied to /usr/local/games and the data
+files are copied to /usr/local/share/csokoban.
 
 BACKGROUND
 
@@ -42,7 +34,7 @@ version of Sokoban, I have included two other sets that struck me as
 being at an appropriate level of difficulty -- a collection created
 by J. Franklin Mentzer called "Still More!", and another by Yoshio
 Murase (who also has a collection of small puzzles that were created
-by a AI program).
+by an AI program).
 
 There are many more collections of Sokoban puzzles available on the
 net. Those who are interested should check out the list of links at

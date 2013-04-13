@@ -15,10 +15,45 @@
 #include	<termios.h>
 #include	<sys/ioctl.h>
 #include	<linux/kd.h>
-#include	<gpm.h>
 #include	"gen.h"
 #include 	"cblocks.h"
 #include	"userio.h"
+
+#ifdef NOMOUSE
+
+/* Stubs and empty macros to provide a no-op mouse interface.
+ */
+#define	mousegetchar	getchar
+#define	openmouse()	FALSE
+#define	closemouse()	((void)0)
+
+static int mousefd = -1;
+
+#else
+
+/* The GPM mouse interface.
+ */
+#include	<gpm.h>
+
+/* Aliases for GPM internals.
+ */
+#define	mousefd		gpm_fd
+#define	mousegetchar	Gpm_Getchar
+
+/* The parameters of the gpm hook.
+ */
+static Gpm_Connect	gpmconnection;
+#define	openmouse()	(gpm_zerobased = TRUE, \
+			 gpm_handler = mousehandler, \
+			 gpmconnection.eventMask = GPM_DOWN|GPM_DRAG|GPM_UP, \
+			 gpmconnection.defaultMask = GPM_MOVE | GPM_HARD, \
+			 gpmconnection.minMod = 0, \
+			 gpmconnection.maxMod = 0, \
+			 Gpm_Open(&gpmconnection, 0) >= 0)
+#define	closemouse()	(Gpm_Close())
+
+#endif
+
 
 /* If NSIG is not provided by signal.h, blithely assume 32 is big enough.
  */
@@ -133,9 +168,9 @@ static int			inrawmode = FALSE;
  */
 static int			usingfont = FALSE;
 
-/* TRUE if the program has hooked into gpm.
+/* TRUE if the program has hooked into the mouse.
  */
-static int			usinggpm = FALSE;
+static int			usingmouse = FALSE;
 
 /* TRUE if the display needs to be redrawn now.
  */
@@ -150,15 +185,6 @@ static struct sigaction		prevhandler[NSIG];
  * temporary uninstalled.
  */
 static struct sigaction		myhandler[NSIG];
-
-/* The parameters of the gpm hook.
- */
-static Gpm_Connect		gpmconnection;
-
-/* The last event received from gpm. The y field is set to -2 if the
- * keyboard has been used since the last gpm event.
- */
-static Gpm_Event		lastevent;
 
 /* The console font's unicode map data.
  */
@@ -398,8 +424,6 @@ static void out(char const *fmt, ...)
 	size += vsprintf(out + size, fmt, args);
 	va_end(args);
     } else {
-	size += sprintf(out + size, "\033[%d;%dH", lastline,
-						   sidebar + SIDEBARWIDTH);
 	write(STDOUT_FILENO, out, size);
 	size = 0;
     }
@@ -460,7 +484,7 @@ static void maptogrid(short screengrid[MAXHEIGHT][MAXWIDTH],
 			screengrid[y][x] = attr_colors(colors[n], 9);
 		    else
 			screengrid[y][x] = ATTR_WHITEBLOCK;
-		    if (n == currblock)
+		    if (currblock && n == currblock)
 			screengrid[y][x] |= ATTR_SELECTED;
 		}
 		if (p[x] & EXTENDNORTH)
@@ -497,17 +521,18 @@ static void maptogrid(short screengrid[MAXHEIGHT][MAXWIDTH],
  */
 int displaygame(cell const *map, int ysize, int xsize,
 		char const *seriesname, char const *levelname, int index,
-		char const *colors, int currblock, int saves,
-		int movecount, int stepcount,
+		char const *colors, int currblock, int ycursor, int xcursor,
+		int saves, int movecount, int stepcount,
 		int beststepcount, int bestmovecount, int beststepknown)
 {
+    static char const  *levelstr[] = { "22", "1", "2" };
     static short	screengrid[MAXHEIGHT][MAXWIDTH];
     char		buf[SIDEBARWIDTH + 1];
     unsigned short     *p;
     int			done;
     int			attr, lastattr;
     int			nameindex = 0;
-    int			y, x, n;
+    int			y, x;
 
     out("\033[H");
 
@@ -529,13 +554,12 @@ int displaygame(cell const *map, int ysize, int xsize,
 	    for (x = 0 ; x < xsize ; ++x) {
 		attr = screengrid[y][x] & ~ATTR_SHAPE;
 		if (!attr) {
-		    out(lastattr ? "\033[49m  " : "  ");
+		    out(lastattr ? "\033[39;49m  " : "  ");
 		    lastattr = 0;
 		    continue;
 		}
 		if (lastattr != attr) {
-		    n = attr_level(attr);
-		    out("\033[%s;3%c;4%cm", n == 1 ? "1" : n == 2 ? "2" : "22",
+		    out("\033[%s;3%c;4%cm", levelstr[attr_level(attr)],
 					    '0' + attr_fgcolor(attr),
 					    '0' + attr_bgcolor(attr));
 		    lastattr = attr;
@@ -613,6 +637,10 @@ int displaygame(cell const *map, int ysize, int xsize,
     }
 
     out("\033[J");
+    if (ycursor && xcursor)
+	out("\033[%d;%dH", ycursor + 1, xcursor * 2 + 1);
+    else
+	out("\033[%d;%dH", lastline, sidebar + SIDEBARWIDTH);
     out(NULL);
     return TRUE;
 }
@@ -681,15 +709,15 @@ static int getkey(void)
     unsigned char	ch;
 
     for (;;) {
-	if (gpm_fd >= 0) {
+	if (mousefd >= 0) {
 	    FD_ZERO(&in);
 	    FD_ZERO(&empty);
 	    FD_SET(STDIN_FILENO, &in);
-	    FD_SET(gpm_fd, &in);
-	    max = (STDIN_FILENO > gpm_fd ? STDIN_FILENO : gpm_fd) + 1;
+	    FD_SET(mousefd, &in);
+	    max = (STDIN_FILENO > mousefd ? STDIN_FILENO : mousefd) + 1;
 	    n = select(max, &in, &empty, &empty, NULL);
 	    if (n > 0)
-		return Gpm_Getchar();
+		return mousegetchar();
 	    else if (n == 0 || errno != EINTR)
 		return EOF;
 	} else {
@@ -717,7 +745,6 @@ int input(void)
     static int	lastkey = 0;
     int		key;
 
-    lastevent.y = -2;
     if (lastkey) {
 	key = lastkey;
 	lastkey = 0;
@@ -729,10 +756,10 @@ int input(void)
 	    if (lastkey == '[' || lastkey == 'O') {
 		lastkey = 0;
 		switch (getkey()) {
-		  case 'A':	return 'k';
-		  case 'B':	return 'j';
-		  case 'C':	return 'l';
-		  case 'D':	return 'h';
+		  case 'A':	return ARROW_N;
+		  case 'B':	return ARROW_S;
+		  case 'C':	return ARROW_E;
+		  case 'D':	return ARROW_W;
 		  default:	ding();	goto getnewkey;
 		}
 	    }
@@ -740,6 +767,8 @@ int input(void)
     }
     return key;
 }
+
+#ifndef NOMOUSE
 
 /* Handle mouse activity. The screen coordinates are translated into a
  * field's cell position and mousecallback() is called. The return
@@ -767,6 +796,8 @@ static int mousehandler(Gpm_Event *event, void *clientdata)
     return mousecallback(event->y, event->x / 2, state);
 }
 
+#endif
+
 /*
  * Top-level functions
  */
@@ -779,9 +810,7 @@ static int startup(void)
 	return FALSE;
     if (setrawmode(TRUE))
 	return FALSE;
-    usinggpm = Gpm_Open(&gpmconnection, 0) != -1;
-    if (usinggpm)
-	gpm_handler = mousehandler;
+    usingmouse = openmouse();
     erasescreen();
     return TRUE;
 }
@@ -790,9 +819,9 @@ static int startup(void)
  */
 static void shutdown(void)
 {
-    if (usinggpm) {
-	Gpm_Close();
-	usinggpm = FALSE;
+    if (usingmouse) {
+	closemouse();
+	usingmouse = FALSE;
     }
     if (usingfont) {
 	erasescreen();
@@ -838,9 +867,9 @@ static void bailout(int signum)
     raise(signum);
 }
 
-/* Install signal handlers, initialize the console, and connect to the
- * GPM server. Make sure the program is running on a Linux console,
- * and the console screen is not too small.
+/* Install signal handlers and initialize the console. Make sure the
+ * program is running on a Linux console, and the console screen is
+ * not too small.
  */
 int ioinitialize(int silenceflag)
 {
@@ -875,12 +904,6 @@ int ioinitialize(int silenceflag)
     sigaction(SIGILL, &act, prevhandler + SIGILL);
     sigaction(SIGBUS, &act, prevhandler + SIGBUS);
     sigaction(SIGFPE, &act, prevhandler + SIGFPE);
-
-    gpm_zerobased = TRUE;
-    gpmconnection.eventMask = GPM_DOWN | GPM_DRAG | GPM_UP;
-    gpmconnection.defaultMask = GPM_MOVE | GPM_HARD;
-    gpmconnection.minMod = 0;
-    gpmconnection.maxMod = 0;
 
     if (getfontdata())
 	return fileerr(NULL);

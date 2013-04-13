@@ -210,8 +210,8 @@ static int partialsave(void)
  */
 static void drawhelpscreen(void)
 {
-    static char const  *keys[] = { "h j k l\0move the selection",
-				   "arrows\0    \"",
+    static char const  *keys[] = { "h j k l\0move the selection blockwise",
+				   "arrows\0move the selection cursorwise",
 				   "H J K L\0move the selected block",
 				   "g\0display the puzzle's goal",
 				   "x\0undo move",
@@ -239,11 +239,14 @@ static void drawhelpscreen(void)
 static int doturn(void)
 {
     switch (input()) {
-      case '\t':    rotatefromcurrblock();			break;
-      case 'k':     if (!(shiftfromcurrblock(NORTH)))	ding();	break;
-      case 'l':     if (!(shiftfromcurrblock(EAST)))	ding();	break;
-      case 'j':     if (!(shiftfromcurrblock(SOUTH)))	ding();	break;
-      case 'h':     if (!(shiftfromcurrblock(WEST)))	ding();	break;
+      case ARROW_N: if (!movecursor(NORTH))		ding();	break;
+      case ARROW_E: if (!movecursor(EAST))		ding();	break;
+      case ARROW_S: if (!movecursor(SOUTH))		ding();	break;
+      case ARROW_W: if (!movecursor(WEST))		ding();	break;
+      case 'k':     if (!shiftfromcurrblock(NORTH))	ding();	break;
+      case 'l':     if (!shiftfromcurrblock(EAST))	ding();	break;
+      case 'j':     if (!shiftfromcurrblock(SOUTH))	ding();	break;
+      case 'h':     if (!shiftfromcurrblock(WEST))	ding();	break;
       case 'K':     if (!newmove(NORTH))		ding();	break;
       case 'L':     if (!newmove(EAST))			ding();	break;
       case 'J':     if (!newmove(SOUTH)) 		ding();	break;
@@ -252,9 +255,9 @@ static int doturn(void)
       case 'z':     if (!redomove())			ding();	break;
       case 'X':     if (!undostep())			ding();	break;
       case 'Z':     if (!redostep())			ding();	break;
+      case 'R':     initgamestate();				break;
       case 's':     savestate();				break;
       case 'r':     if (!restorestate())		ding();	break;
-      case 'R':     initgamestate();				break;
       case 'S':     if (!partialsave())			ding();	break;
       case 'g':	    drawgoalscreen();				break;
       case '?':     drawhelpscreen();				break;

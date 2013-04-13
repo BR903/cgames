@@ -196,6 +196,13 @@ static void pickstartinggame(char const *startfile, int startlevel)
  * User interface functions
  */
 
+/* Save an incomplete solution.
+ */
+static int partialsave(void)
+{
+    return replaceanswers(TRUE) && saveanswers(serieslist + currentseries);
+}
+
 /* Display information on the various key commands during a game.
  */
 static void drawhelpscreen(void)
@@ -211,6 +218,7 @@ static void drawhelpscreen(void)
 				   "r\0restore saved position",
 				   "m\0toggle macro recording",
 				   "p\0play current macro",
+				   "S\0save current position to disk",
 				   "P\0previous level",
 				   "N\0next level",
 				   "Ctrl-L\0redraw screen",
@@ -243,14 +251,15 @@ static int doturn(void)
       case 'H':		while (newmove(-1)) ;			break;
       case 'x':		if (!undomove())		ding();	break;
       case 'z':		if (!redomove())		ding();	break;
-      case 's':		savestate();				break;
-      case 'r':		if (!restorestate())		ding();	break;
-      case 'm':		setmacro();				break;
-      case 'p':		if (!startmacro())		ding();	break;
       case 'X':		if (!undomoves(8))		ding();	break;
       case 'Z':		if (!redomoves(8))		ding();	break;
       case 'R':		initgamestate(TRUE);			break;
       case '\022':	initgamestate(FALSE);			break;
+      case 's':		savestate();				break;
+      case 'r':		if (!restorestate())		ding();	break;
+      case 'S':		if (!partialsave())		ding();	break;
+      case 'm':		setmacro();				break;
+      case 'p':		if (!startmacro())		ding();	break;
       case '?':		drawhelpscreen();			break;
       case '\f':						break;
       case 'P':		return -1;
@@ -308,7 +317,7 @@ static void playgame(void)
 	    drawscreen(index);
 	} while (!checkfinished());
 	freesavedstates();
-	if (checkfinished() && replaceanswers())
+	if (checkfinished() && replaceanswers(FALSE))
 	    saveanswers(serieslist + currentseries);
     }
 

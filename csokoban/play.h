@@ -109,9 +109,11 @@ extern int drawscreen(int index);
 /* Replace the user's solutions with the just-executed solution (taken
  * from the undo list) if it beats either or both of them for least
  * number of moves/pushes. FALSE is returned if no solution was
- * replaced.
+ * replaced. If saveinc is TRUE, then the user's "solution" is not
+ * actually complete, in which case it will only be saved if no
+ * complete solution is currently saved.
  */
-extern int replaceanswers(void);
+extern int replaceanswers(int saveinc);
 
 /* Print to stdout a series of images of the current game as the
  * user's solution is followed.

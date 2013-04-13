@@ -46,6 +46,14 @@ instead of the default.
 .BI \-v
 Display version information and exit.
 .TP
+.BI \-w
+Display your solution with the least number of moves for the level
+specified on the command line (using
+.I NAME
+and/or
+.IR LEVEL )
+as a series of text images, and exit.
+.TP
 .BI NAME
 Play only the games in the file
 .IR NAME .
@@ -74,13 +82,11 @@ from the currently selected block, the nearest one will be taken.
 Blocks can also be selected using the left mouse button.
 .TP
 .BI arrows
-The arrow keys can be used for movement as well.
-.TP
-.BI tab
-The tab key changes the current block to the next one (where "next" is
-defined by an internal ordering). This key command is sometimes
-necessary when a block does not lie in an orthogonal direction from
-any of its closest neighbors.
+The arrow keys move the cursor, which can also be used to change the
+selection. When the cursor lies over a block, it is automatically
+selected. These keys are more useful for changing the selection when a
+block does not lie in an orthogonal direction from any of its closest
+neighbors.
 .TP
 .BI HJKL
 Using shift with the vi keys moves the selected block in the

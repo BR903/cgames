@@ -1,0 +1,48 @@
+dnl
+dnl Process this file with autoconf to produce a configure script.
+dnl
+
+AC_INIT(csokoban/csokoban.c)
+
+bindir='${exec_prefix}/games'
+
+test -z "$CC" && CC="gcc"
+test -z "$CFLAGS" && CFLAGS=" -Wall -O2"
+test -z "$LDFLAGS" && LDFLAGS=" -Wall -s"
+
+LATIN1FLAGS=""
+AC_ARG_WITH(latin1,
+	[  --with-latin1           Use the Latin-1 bullet character],
+	[test $withval = yes && LATIN1FLAGS=" -DUSE_LATIN1"])
+
+MOUSEFLAGS=""
+MOUSELIBS=" -lgpm"
+AC_ARG_ENABLE(mouse,
+	[  --disable-mouse         Build without gpm support],
+	[if test $enableval = no ; then
+	   MOUSEFLAGS=" -DNOMOUSE"
+	   MOUSELIBS=""
+	 fi])
+
+IOCFILE="linuxio.c"
+AC_ARG_WITH(ncurses,
+	[  --with-ncurses          Build ncurses version],
+	[if test $withval = yes ; then
+	   LOADLIBES="$LOADLIBES -lncurses"
+	   IOCFILE="cursesio.c"
+	 fi])
+
+echo creating symlinks
+(cd csokoban && ln -sf $IOCFILE userio.c)
+(cd cmines   && ln -sf $IOCFILE userio.c)
+(cd cblocks  && ln -sf $IOCFILE userio.c)
+
+AC_SUBST(CC)
+AC_SUBST(CFLAGS)
+AC_SUBST(LDFLAGS)
+AC_SUBST(LOADLIBES)
+AC_SUBST(LATIN1FLAGS)
+AC_SUBST(MOUSEFLAGS)
+AC_SUBST(MOUSELIBS)
+
+AC_OUTPUT(csokoban/Makefile cmines/Makefile cblocks/Makefile)

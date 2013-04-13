@@ -124,6 +124,12 @@ is displayed on the right when one or more positions have been saved.)
 Restore the last saved position. Undo and redo positions are also
 restored, but not macros.
 .TP
+.BI S
+Save the current position to disk. The position will be available via
+redo whenever you return to this level. Note that this option is only
+available for an unsolved level. The position will be remembered until
+a complete solution is found or until this command is used again.
+.TP
 .BI R
 Restart the game from the beginning. Any recorded macros are
 lost, but saved positions are retained.

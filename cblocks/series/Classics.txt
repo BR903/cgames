@@ -201,10 +201,10 @@ end
 
 ; Puzzle 9
 
-display Century Puzzle by Berlekamp, Conway, and Guy, 1982
+display Century Puzzle by John Conway, 1982
 
 size 4 5
-step 100
+step 99
 
 initial
 azzb
@@ -224,7 +224,7 @@ color z 255 0 0
 
 end
 
-; Puzzle 9
+; Puzzle 10
 
 display Traffic Jam Puzzle (aka Tit-Bits #4) by F. L. Babcock, 1928
 size 6 5
@@ -248,7 +248,7 @@ color z 0 255 255
 
 end
 
-; Puzzle 10
+; Puzzle 11
 
 display Escott Puzzle by E. B. Escott, 1938
 size 8 10
@@ -282,5 +282,34 @@ color A 255 0 0
 color B 255 0 0
 color C 0 255 0
 color D 0 255 0
+
+end
+
+; Puzzle 12
+
+display Century-and-a-Half Puzzle by John Conway, 1982
+
+size 4 5
+step 148
+
+initial
+azzb
+czzd
+ce d
+fe g
+hhii
+
+target
+hhii
+f eg
+c ed
+czzd
+azzb
+
+equiv abfg
+equiv cde
+equiv hi
+
+color z 255 0 0
 
 end

@@ -174,8 +174,8 @@ static void drawcell(int y, int x, int ext, attr_t attr)
  */
 int displaygame(cell const *map, int ysize, int xsize,
 		char const *seriesname, char const *levelname, int index,
-		char const *colors, int currblock, int saves,
-		int movecount, int stepcount,
+		char const *colors, int currblock, int ycursor, int xcursor,
+		int saves, int movecount, int stepcount,
 		int beststepcount, int bestmovecount, int beststepknown)
 {
     cell const *p;
@@ -255,7 +255,10 @@ int displaygame(cell const *map, int ysize, int xsize,
 	}
     }
 
-    move(lastline, sidebar + SIDEBARWIDTH - 1);
+    if (ycursor && xcursor)
+	move(ycursor * 2, xcursor * 4 + 1);
+    else
+	move(lastline, sidebar + SIDEBARWIDTH - 1);
 
     refresh();
     return TRUE;
@@ -346,10 +349,10 @@ int input(void)
     for (;;) {
 	int key = getch();
 	switch (key) {
-	  case KEY_UP:		return 'k';
-	  case KEY_DOWN:	return 'j';
-	  case KEY_LEFT:	return 'h';
-	  case KEY_RIGHT:	return 'l';
+	  case KEY_UP:		return ARROW_N;
+	  case KEY_DOWN:	return ARROW_S;
+	  case KEY_LEFT:	return ARROW_W;
+	  case KEY_RIGHT:	return ARROW_E;
 	  case KEY_ENTER:	return '\n';
 	  case '\r':		return '\n';
 	  case KEY_BACKSPACE:	return '\b';

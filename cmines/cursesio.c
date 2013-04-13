@@ -383,7 +383,9 @@ int ioinitialize(int updatetimerflag, int showsmileysflag, int silenceflag,
     noecho();
     keypad(stdscr, TRUE);
 
+#ifndef NOMOUSE
     mousemask(BUTTON1_CLICKED | BUTTON2_CLICKED | BUTTON3_CLICKED, NULL);
+#endif
 
     if (has_colors()) {
 	short	bkgnd;

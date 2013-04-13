@@ -6,14 +6,19 @@ this information, you attempt to proceed through the minefield.
 
 INSTALLING
 
-Since cmines is written specifically for Linux 2.x, no configure
-script is needed. Use "make" to build the program. By default, "make
-install" will install cmines under /usr/local/games. The target
-directory can be changed by editing the definitions at the top of the
-Makefile.
+To support the mouse, you will need to have the gpm library installed,
+as well as the include file gpm.h. Alternately, you can build the
+program without mouse support by including the --disable-mouse option
+when running ./configure at the top-level directory.
 
-In order to build you will need to have installed the gpm library and
-the include file gpm.h.
+An alternate version of cmines is included, which uses ncurses and
+therefore does not require the Linux console. The mouse handling is
+noticeably different (and is unavailable on the console unless you've
+built ncurses with gpm support), but otherwise it looks very much like
+the normal version. To build this version, include the --with-ncurses
+option when running ./configure at the top-level directory.
+
+By default, the executable is copied to /usr/local/games.
 
 NOTE ON CHARACTER SETS
 
@@ -27,22 +32,10 @@ Linux installations' terminfo entries fail to take advantage of it.)
 In particular, the VT100 bullet character is actually mapped to a
 centered block, and not a centered dot as it appears on an actual
 VT100. So, if cmines starts up with a field of blocks, and you think
-(as I do) that it looks kind of ugly, try editing the Makefile to
-uncomment the definition of USE_LATIN1 and rebuilding.
-
-ALTERNATE VERSION
-
-An alternate version of cmines is included, which uses ncurses and
-gpm, and therefore does not require the Linux console. The mouse
-handling is noticeably different, but otherwise it looks very much
-like the normal version. (Note that you will need to have an ncurses
-library that was built with gpm support in order to use the mouse.) To
-build this version:
-
-1. change the symbolic link userio.c to point to cursesio.c instead of
-   linuxio.c;
-2. uncomment the LOADLIBES line in the Makefile;
-3. rebuild.
+(as I do) that it looks kind of ugly, try including the --with-latin1
+option when running ./configure at the top-level directory, and
+rebuilding. This will tell cmines to use the Latin-1 middle-dot
+character instead of the VT100 bullet.
 
 Brian Raiter <breadbox@muppetlabs.com>
 September, 2000

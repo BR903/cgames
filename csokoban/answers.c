@@ -32,6 +32,7 @@ static int readanswer(FILE *fp, dyxlist *moves, int movecount)
 {
     dyx	move;
     int	ch = EOF;
+    int	r;
 
     setmovelist(moves, movecount);
     while (movecount && (ch = fgetc(fp)) != EOF) {
@@ -49,25 +50,32 @@ static int readanswer(FILE *fp, dyxlist *moves, int movecount)
 	}
 	moves->list[--movecount] = move;
     }
-    while (ch != EOF && ch != '\n')
+
+    r = TRUE;
+    while (ch != EOF && ch != '\n') {
+	if (ch == '.')
+	    r = FALSE;
 	ch = fgetc(fp);
+    }
     if (movecount) {
 	initmovelist(moves);
 	return FALSE;
     }
-    return TRUE;
+    return r;
 }
 
 /* Write the given list of moves out to fp, inserting a line break
  * after every 64th character.
  */
-static int saveanswer(FILE *fp, dyxlist const *moves)
+static int saveanswer(FILE *fp, dyxlist const *moves, int inc)
 {
     dyx const  *move;
     int		ch, i;
 
     move = moves->list + moves->count;
     for (i = 0 ; i < moves->count ; ++i) {
+	if (i && !(i & 63))
+	    fputc('\n', fp);
 	--move;
 	if (move->yx < 0)
 	    ch = move->yx == -1 ? 'h' : 'k';
@@ -76,11 +84,10 @@ static int saveanswer(FILE *fp, dyxlist const *moves)
 	if (move->box)
 	    ch = toupper(ch);
 	fputc(ch, fp);
-	if ((i & 63) == 63)
-	    fputc('\n', fp);
     }
-    if (i & 63)
-	fputc('\n', fp);
+    if (inc)
+	fwrite(" ...", 1, 4, fp);
+    fputc('\n', fp);
     fflush(fp);
     return TRUE;
 }
@@ -118,8 +125,11 @@ int readanswers(FILE *fp, gamesetup *game)
 	return TRUE;
 
     if (sscanf(buf, "%d moves, %d pushes", &n, &m) < 2
-			|| !readanswer(fp, &game->moveanswer, n))
+			|| !readanswer(fp, &game->moveanswer, n)) {
+	game->movebestcount = 0;
+	game->movebestpushcount = 0;
 	return FALSE;
+    }
     game->movebestcount = n;
     game->movebestpushcount = m;
 
@@ -202,15 +212,19 @@ int saveanswers(gameseries *series)
 	    continue;
 	}
 	fprintf(series->answerfp, "%d moves, %d pushes\n",
-				  game->movebestcount,
+				  game->moveanswer.count,
 				  game->movebestpushcount);
-	saveanswer(series->answerfp, &game->moveanswer);
+	if (!game->movebestcount) {
+	    saveanswer(series->answerfp, &game->moveanswer, TRUE);
+	    continue;
+	}
+	saveanswer(series->answerfp, &game->moveanswer, FALSE);
 	if (game->pushbestcount != game->movebestpushcount
 		&& game->pushbestmovecount != game->movebestcount) {
 	    fprintf(series->answerfp, "%d moves, %d pushes\n",
-				      game->pushbestmovecount,
+				      game->pushanswer.count,
 				      game->pushbestcount);
-	    saveanswer(series->answerfp, &game->pushanswer);
+	    saveanswer(series->answerfp, &game->pushanswer, FALSE);
 	}
     }
     if (tbufsize) {

@@ -1,0 +1,35 @@
+#
+# Useful ./configure options with respect to this Makefile:
+# --prefix
+# --exec_prefix
+# --bindir
+# --mandir
+# --with-ncurses
+# --disable-mouse
+# --with-latin1
+
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+bindir = @bindir@
+mandir = @mandir@
+
+CC = @CC@
+CFLAGS =@CFLAGS@@MOUSEFLAGS@@LATIN1FLAGS@
+LDFLAGS =@LDFLAGS@
+LOADLIBES =@LOADLIBES@@MOUSELIBS@
+
+OBJS = cmines.o userio.o
+
+cmines: $(OBJS)
+
+clean:
+	rm -f $(OBJS) cmines Makefile
+
+install: cmines
+	install -d $(bindir)
+	install -c ./cmines $(bindir)/cmines
+	install -d $(mandir)/man6
+	install -c ./cmines.6 $(mandir)/man6/cmines.6
+
+cmines.o: cmines.c cmines.h userio.h
+userio.o: userio.c cmines.h userio.h
