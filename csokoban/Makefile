@@ -3,13 +3,13 @@
 prefix = /usr/local
 datadir = $(prefix)/share/csokoban
 
-# Uncomment this line to build the curses-based version.
-#
-#LOADLIBES = -lncurses
-
 CC = gcc
 CFLAGS = -Wall -O '-DDATADIR="$(datadir)"'
 LDFLAGS = -Wall -O -s
+
+# Uncomment this line to build the curses-based version.
+#
+#LOADLIBES = -lncurses
 
 OBJS = csokoban.o movelist.o fileread.o answers.o play.o dirio.o userio.o
 

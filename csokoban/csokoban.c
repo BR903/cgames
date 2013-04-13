@@ -49,7 +49,7 @@ static char const *yowzitch =
 /* Version information.
  */
 static char const *vourzhon =
-	"csokoban, version 1.0. Copyright (C) 2000 by Brian Raiter\n"
+	"csokoban, version 1.3. Copyright (C) 2000 by Brian Raiter\n"
 	"under the terms of the GNU General Public License.\n";
 
 /* The list of available puzzle files.

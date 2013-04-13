@@ -860,7 +860,7 @@ int ioinitialize(void)
 void ding(void)
 {
     if (!silence)
-	fputc('\a', stderr);
+	write(STDERR_FILENO, "\a", 1);
 }
 
 /* Display an appropriate error message on stderr; use msg if errno

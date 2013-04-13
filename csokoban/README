@@ -1,3 +1,11 @@
+csokoban is an implementation of the classic game of sokoban, to be
+played on the Linux console. The object of the game is to move all the
+boxes into the specially marked spaces. The boxes cannot be pulled,
+only pushed, and only one box can be moved at a time. There are many
+levels, each with a unique configuration of walls, boxes, and goal
+spaces. The mechanics of the game are very simple, but finding
+solutions can sometimes be extremely challenging.
+
 INSTALLING
 
 Since csokoban is written specifically for Linux 2.x, no configure
@@ -14,7 +22,7 @@ it has all the same functionality. To build this version:
 
 1. change the symbolic link userio.c to point to cursesio.c instead of
    linuxio.c;
-2. uncomment the definition of LOADLIBES in the Makefile;
+2. uncomment the LOADLIBES line in the Makefile;
 3. rebuild.
 
 BACKGROUND

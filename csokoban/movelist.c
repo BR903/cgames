@@ -1,7 +1,12 @@
+/* movelist.c: Functions for manipulating lists of moves.
+ *
+ * Copyright (C) 2000 by Brian Raiter, under the GNU General Public
+ * License. No warranty. See COPYING for details.
+ */
+
 #include	<stdlib.h>
 #include	"gen.h"
 #include	"movelist.h"
-
 
 /* Initialize or reinitialize list as empty.
  */

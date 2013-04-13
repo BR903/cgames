@@ -1,14 +1,22 @@
 The programs in this distribution are re-implementations of games for
 the Linux console.
 
-At this time, there is only one game in the distribution, csokoban,
-but a couple more are nearly ready. (I'm releasing this one now to
-help motivate myself to complete the other two.)
+Three games are included with this distribution:
+
+* cblocks (sliding-block puzzles),
+* cmines (a minesweeper-based game), and
+* csokoban (sokoban).
+
+Alternate versions are included, which do not need to be played on the
+Linux console. However, these versions lack the font-altered images
+and mouse support.
 
 INSTALLING
 
-In brief: "cd csokoban", "make", "make install". See csokoban/README
-for more information.
+In brief: go to one of the subdirectories cblocks, cmines, csokoban,
+and type "make" and "make install". Running configure is not
+necessary. See the README files in each subdirectory for more
+information.
 
 JUSTIFICATION
 
@@ -25,8 +33,7 @@ Linux console has many extremely advanced features for a text
 terminal, yet I just don't see many programs taking advantage of them.
 
 I decided to rewrite some of my favorite games for the Linux console,
-so I could play them, pretty pictures and all, without having to fire
-up X.
+so I could play them without X, pretty pictures and all.
 
 THE FINE PRINT
 
