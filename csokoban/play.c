@@ -5,6 +5,7 @@
  */
 
 #include	<stdlib.h>
+#include	<string.h>
 #include	"gen.h"
 #include	"csokoban.h"
 #include	"userio.h"

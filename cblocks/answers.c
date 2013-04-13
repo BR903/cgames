@@ -6,6 +6,7 @@
 
 #include	<stdio.h>
 #include	<stdlib.h>
+#include	<string.h>
 #include	<ctype.h>
 #include	"gen.h"
 #include	"cblocks.h"
@@ -155,7 +156,7 @@ int readanswers(FILE *fp, gamesetup *game)
 	return TRUE;
 
     for (;;) {
-	n = getline(fp, buf, sizeof buf);
+	n = getnline(fp, buf, sizeof buf);
 	if (n < 0)
 	    return FALSE;
 	if (*buf != '\n' && *buf != ';')

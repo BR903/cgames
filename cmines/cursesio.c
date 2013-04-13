@@ -338,6 +338,8 @@ int input(void)
 	    if ((key = mousehandler()))
 		return key;
 	    break;
+	  case ERR:
+	    break;
 	  default:
 	    return key;
 	}

@@ -38,7 +38,7 @@ char   *datadir = NULL;
 /* Read one full line from fp and store the first len characters in
  * buf.
  */
-int getline(FILE *fp, char *buf, int len)
+int getnline(FILE *fp, char *buf, int len)
 {
     int	ch, n;
 
@@ -162,7 +162,7 @@ static int readlevelmap(FILE *fp, gamesetup *game)
 	    --y;
 	    if (ch == '\n')
 		continue;
-	    n = getline(fp, buf, sizeof buf);
+	    n = getnline(fp, buf, sizeof buf);
 	    if (n < 0)
 		return FALSE;
 	    if (ch == ';' && *buf == ';') {
@@ -177,7 +177,7 @@ static int readlevelmap(FILE *fp, gamesetup *game)
 	    continue;
 	}
 	buf[0] = ch;
-	getline(fp, buf + 1, sizeof buf - 1);
+	getnline(fp, buf + 1, sizeof buf - 1);
 	if (badmap)
 	    continue;
 	x = 1;
@@ -239,7 +239,7 @@ static int readseriesheader(gameseries *series)
     for (;;) {
 	ch = fgetc(series->mapfp);
 	if (ch == ';') {
-	    getline(series->mapfp, buf, sizeof buf);
+	    getnline(series->mapfp, buf, sizeof buf);
 	    if (*buf == ';') {
 		for (n = 1 ; isspace(buf[n]) ; ++n) ;
 		strncpy(series->name, buf + n, sizeof series->name - 1);

@@ -23,7 +23,7 @@ OBJS = csokoban.o movelist.o fileread.o answers.o play.o dirio.o userio.o
 csokoban: $(OBJS)
 
 clean:
-	rm -f $(OBJS) csokoban Makefile
+	rm -f $(OBJS) csokoban
 
 install: csokoban
 	install -d $(bindir)

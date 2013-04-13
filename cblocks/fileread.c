@@ -30,7 +30,7 @@ char   *datadir = NULL;
 /* Read one full line from fp and store the first len characters in
  * buf.
  */
-int getline(FILE *fp, char *buf, int len)
+int getnline(FILE *fp, char *buf, int len)
 {
     int	ch, n;
 
@@ -59,7 +59,7 @@ static int readseriesheader(gameseries *series)
     for (;;) {
 	ch = fgetc(series->mapfp);
 	if (ch == ';') {
-	    getline(series->mapfp, buf, sizeof buf);
+	    getnline(series->mapfp, buf, sizeof buf);
 	    if (*buf == ';') {
 		for (n = 1 ; isspace(buf[n]) ; ++n) ;
 		strncpy(series->name, buf + n, sizeof series->name - 1);

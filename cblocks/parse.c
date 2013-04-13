@@ -50,7 +50,7 @@ static char *readpicture(FILE *fp, filemapinfo *fmi, int fillcharset)
     memset(map, ' ', fmi->ysize * fmi->xsize);
     p = map;
     for (y = 0 ; y < fmi->ysize ; ++y) {
-	n = getline(fp, buf, sizeof buf);
+	n = getnline(fp, buf, sizeof buf);
 	if (n < 0 || *buf == ';')
 	    break;
 	if (!ok)
@@ -96,7 +96,7 @@ static char const *readmapinfoline(FILE *fp, filemapinfo *fmi)
     int		n;
 
     for (;;) {
-	n = getline(fp, buf, sizeof buf);
+	n = getnline(fp, buf, sizeof buf);
 	if (n < 0)
 	    return NULL;
 	if (!n || *buf == ';')

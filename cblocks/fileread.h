@@ -53,7 +53,7 @@ extern char    *datadir;
  * buf are lost. The return value is the length of the string stored
  * in buf, or -1 if fgets() returned NULL.
  */
-extern int getline(FILE *fp, char *buf, int len);
+extern int getnline(FILE *fp, char *buf, int len);
 
 /* Find the puzzle files and allocate an array of gameseries
  * structures for them.

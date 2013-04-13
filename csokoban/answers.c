@@ -30,7 +30,7 @@ int	savedirchecked = FALSE;
  */
 static int readanswer(FILE *fp, dyxlist *moves, int movecount)
 {
-    dyx	move;
+    dyx	move = { 0, 0 };
     int	ch = EOF;
     int	r;
 
@@ -115,7 +115,7 @@ int readanswers(FILE *fp, gamesetup *game)
 	return TRUE;
 
     for (;;) {
-	n = getline(fp, buf, sizeof buf);
+	n = getnline(fp, buf, sizeof buf);
 	if (n < 0)
 	    return FALSE;
 	if (*buf != '\n' && *buf != ';')
@@ -133,7 +133,7 @@ int readanswers(FILE *fp, gamesetup *game)
     game->movebestcount = n;
     game->movebestpushcount = m;
 
-    if (getline(fp, buf, sizeof buf) <= 0
+    if (getnline(fp, buf, sizeof buf) <= 0
 			|| sscanf(buf, "%d moves, %d pushes", &n, &m) < 2
 			|| !readanswer(fp, &game->pushanswer, n)) {
 	copymovelist(&game->pushanswer, &game->moveanswer);
