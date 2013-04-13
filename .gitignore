@@ -1,0 +1,10 @@
+*.o
+userio.c
+Makefile
+
+config.cache
+config.log
+config.status
+cblocks/cblocks
+cmines/cmines
+csokoban/csokoban
