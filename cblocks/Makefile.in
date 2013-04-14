@@ -11,7 +11,7 @@
 prefix = @prefix@
 exec_prefix = @exec_prefix@
 bindir = @bindir@
-datadir = @datadir@/cblocks
+datadir = @datarootdir@/cblocks
 mandir = @mandir@
 
 CC = @CC@
@@ -24,6 +24,8 @@ OBJS = cblocks.o movelist.o parse.o fileread.o answers.o play.o dirio.o userio.o
 cblocks: $(OBJS)
 
 clean:
+	rm -f $(OBJS) cblocks
+distclean:
 	rm -f $(OBJS) cblocks Makefile
 
 install: cblocks

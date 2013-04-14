@@ -7,7 +7,7 @@ AC_INIT(csokoban/csokoban.c)
 bindir='${exec_prefix}/games'
 
 test -z "$CC" && CC="gcc"
-test -z "$CFLAGS" && CFLAGS=" -Wall -O2"
+test -z "$CFLAGS" && CFLAGS=" -Wall -Wextra -Wno-missing-field-initializers -Wno-unused-result -O2"
 test -z "$LDFLAGS" && LDFLAGS=" -Wall -s"
 
 LATIN1FLAGS=""

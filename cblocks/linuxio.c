@@ -127,7 +127,7 @@ static Gpm_Connect	gpmconnection;
 /* The indexes of the characters in the font that will be replaced
  * with images for displaying various parts of objects.
  */
-static unsigned char const linechars[][2] = {
+static char const linechars[][2] = {
     { 203, 211 },	/* left side extends N S W, right side extends N S E */
     { 204, 212 },	/* left side extends S W, right side extends S E */
     { 205, 213 },	/* left side extends N W, right side extends N E */
@@ -141,7 +141,7 @@ static unsigned char const linechars[][2] = {
 /* The indexes of the character pairs used to display a cell
  * containing some kind of object.
  */
-static unsigned char const linecells[][2] = {
+static char const linecells[][2] = {
     { 210, 190 },	/* isolated object */
     { 209, 189 },	/* object extends N */
     { 210, 206 },	/* object extends E */
@@ -279,7 +279,7 @@ static int setfontdata(char *chardata)
  * to one scanline of left and right. The character 0 turns a pixel
  * off, 1 turns a pixel on, and space leaves the pixel unchanged.
  */
-static void imprint(unsigned char *left, unsigned char *right,
+static void imprint(char *left, char *right,
 		    char const (*image)[16], int height)
 {
     int	off, on, i, j;
@@ -312,7 +312,7 @@ static void imprint(unsigned char *left, unsigned char *right,
  * in chardata. The wallchars array contains the actual character
  * indexes that are used.
  */
-static void makewalls(unsigned char *chardata)
+static void makewalls(char *chardata)
 {
     static char const walltop[4][2][16] = {
 	{ "1000000000000011",
@@ -338,7 +338,7 @@ static void makewalls(unsigned char *chardata)
 	{ "1111111111111110",
 	  "1000000000000001" }
     };
-    unsigned char      *left, *right;
+    char      *left, *right;
     int			i, j, k;
 
     for (i = 0 ; i < 2 ; ++i) {
@@ -528,7 +528,7 @@ int displaygame(cell const *map, int ysize, int xsize,
     static char const  *levelstr[] = { "22", "1", "2" };
     static short	screengrid[MAXHEIGHT][MAXWIDTH];
     char		buf[SIDEBARWIDTH + 1];
-    unsigned short     *p;
+    short	       *p;
     int			done;
     int			attr, lastattr;
     int			nameindex = 0;

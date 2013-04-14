@@ -69,7 +69,7 @@
 /* The indexes of the characters in the font that will be replaced
  * with images for displaying various parts of walls.
  */
-static unsigned char const wallchars[][2] = {
+static char const wallchars[][2] = {
     { 203, 211 },	/* left side extends N S W, right side extends N S E */
     { 204, 212 },	/* left side extends S W, right side extends S E */
     { 205, 213 },	/* left side extends N W, right side extends N E */
@@ -83,7 +83,7 @@ static unsigned char const wallchars[][2] = {
 /* The indexes of the character pairs used to display a cell
  * containing some kind of wall.
  */
-static unsigned char const wallcells[][2] = {
+static char const wallcells[][2] = {
     { 210, 190 },	/* isolated wall */
     { 209, 189 },	/* wall extends N */
     { 208, 214 },	/* wall extends S */
@@ -105,7 +105,7 @@ static unsigned char const wallcells[][2] = {
 /* The indexes of the character pairs used to display a cell
  * containing something besides a wall.
  */
-static unsigned char const screencells[][2] = {
+static char const screencells[][2] = {
     { 181, 182 },	/* FLOOR */
     { 198, 183 },	/* GOAL */
     { 199, 184 },	/* BOX */
@@ -229,7 +229,7 @@ static int setfontdata(char *chardata)
  * to one scanline of left and right. The character 0 turns a pixel
  * off, 1 turns a pixel on, and space leaves the pixel unchanged.
  */
-static void imprint(unsigned char *left, unsigned char *right,
+static void imprint(char *left, char *right,
 		    char const (*image)[16], int height)
 {
     int	off, on, i, j;
@@ -261,7 +261,7 @@ static void imprint(unsigned char *left, unsigned char *right,
 /* Draw the floor pattern on the font data at left and right. If
  * goaled is TRUE, the floor pattern for goal cells is used.
  */
-static void makeflooring(unsigned char *left, unsigned char *right, int goaled)
+static void makeflooring(char *left, char *right, int goaled)
 {
     static char const floor[2][4] = {
 	{ 0x00, 0x08, 0x06, 0x08 },
@@ -289,7 +289,7 @@ static void makeflooring(unsigned char *left, unsigned char *right, int goaled)
 /* Draw the image of a box on the font data at left and right. If
  * goaled is TRUE, the image of a stored box is used.
  */
-static void makeboxes(unsigned char *left, unsigned char *right, int goaled)
+static void makeboxes(char *left, char *right, int goaled)
 {
     static char const boxends[2][16] =
 	{ "  111111111111  ",
@@ -314,7 +314,7 @@ static void makeboxes(unsigned char *left, unsigned char *right, int goaled)
  * goaled is TRUE, the goal cell is used for the floor pattern behind
  * the player.
  */
-static void makeplayers(unsigned char *left, unsigned char *right, int goaled)
+static void makeplayers(char *left, char *right, int goaled)
 {
     static char const playerbody[1][16] =
 	{ "      0110      " };
@@ -349,7 +349,7 @@ static void makeplayers(unsigned char *left, unsigned char *right, int goaled)
  * in chardata. The wallchars array contains the actual character
  * indexes that are used.
  */
-static void makewalls(unsigned char *chardata)
+static void makewalls(char *chardata)
 {
     static char const walltop[4][2][16] = {
 	{ "1000000000000011",
@@ -375,8 +375,8 @@ static void makewalls(unsigned char *chardata)
 	{ "1111111111111110",
 	  "1000000000000001" }
     };
-    unsigned char      *left, *right;
-    int			i, j, k;
+    char      *left, *right;
+    int		i, j, k;
 
     for (i = 0 ; i < 2 ; ++i) {
 	for (j = 0 ; j < 4 ; ++j) {
@@ -393,7 +393,7 @@ static void makewalls(unsigned char *chardata)
 
 /* Put all of the special character images into chardata.
  */
-static void createfontchars(unsigned char *chardata)
+static void createfontchars(char *chardata)
 {
     makeflooring(fontchar(chardata, screencells[0][0]),
 		 fontchar(chardata, screencells[0][1]), 0);

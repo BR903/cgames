@@ -3,14 +3,14 @@
 # --prefix
 # --exec_prefix
 # --bindir
-# --datadir
+# --datarootdir
 # --mandir
 # --with-ncurses
 
 prefix = @prefix@
 exec_prefix = @exec_prefix@
 bindir = @bindir@
-datadir = @datadir@/csokoban
+datadir = @datarootdir@/csokoban
 mandir = @mandir@
 
 CC = @CC@
@@ -24,6 +24,8 @@ csokoban: $(OBJS)
 
 clean:
 	rm -f $(OBJS) csokoban
+distclean:
+	rm -f $(OBJS) csokoban Makefile
 
 install: csokoban
 	install -d $(bindir)
