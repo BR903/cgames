@@ -511,6 +511,18 @@ static int lineout(char const *str, int index)
     return index;
 }
 
+/* Display two characters directly from the current console font. The
+ * user-defined Unicode area U+F000 to U+F0FF is defined on the Linux
+ * console to map directly to the current font character. The function
+ * handles the conversion to UTF-8.
+ */
+static void outpair(char const pair[2])
+{
+    out("\xEF%c%c\xEF%c%c",
+	0x80 | ((unsigned char)pair[0] >> 6), 0x80 | (pair[0] & 0x3F),
+	0x80 | ((unsigned char)pair[1] >> 6), 0x80 | (pair[1] & 0x3F));
+}
+
 /* Display the game state on the console. The map is placed in the
  * upper left corner, and the textual information appears in the upper
  * right corner.
@@ -541,18 +553,14 @@ int displaygame(cell const *map, int ysize, int xsize,
 	if (y > 1)
 	    out("\n");
 	if (y < ysize - 1) {
-	    out("\033(K");
 	    for (x = 1 ; x < xsize - 1 ; ++x) {
 		if (p[x] == EMPTY)
 		    out("  ");
 		else if (p[x] & WALL)
-		    out("%c%c", wallcells[p[x] >> 4][0],
-				wallcells[p[x] >> 4][1]);
+		    outpair(wallcells[p[x] >> 4]);
 		else
-		    out("%c%c", screencells[p[x] & 0x0F][0],
-				screencells[p[x] & 0x0F][1]);
+		    outpair(screencells[p[x] & 0x0F]);
 	    }
-	    out("\033(B");
 	} else {
 	    x = 1;
 	    done |= DONE_MAP;
@@ -653,10 +661,10 @@ void displayhelp(char const *keys[], int keycount)
     n = keywidth + descwidth + 2;
     if (n < 4)
 	n = 4;
-    out("%*s\033[K\n\033(0", n / 2 + 2, "Keys");
+    out("%*s\033[K\n", n / 2 + 2, "Keys");
     for (i = 0 ; i < n ; ++i)
-	out("q");
-    out("\033(B\033[K\n");
+	out("\xE2\x94\x80");
+    out("\033[K\n");
     for (i = 0 ; i < keycount ; ++i) {
 	n = strlen(keys[i]);
 	out("%-*s  %-*s\033[K\n", keywidth, keys[i],

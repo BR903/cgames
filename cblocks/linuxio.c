@@ -515,6 +515,18 @@ static void maptogrid(short screengrid[MAXHEIGHT][MAXWIDTH],
     }
 }
 
+/* Display two characters directly from the current console font. The
+ * user-defined Unicode area U+F000 to U+F0FF is defined on the Linux
+ * console to map directly to the current font character. The function
+ * handles the conversion to UTF-8.
+ */
+static void outpair(char const pair[2])
+{
+    out("\xEF%c%c\xEF%c%c",
+	0x80 | ((unsigned char)pair[0] >> 6), 0x80 | (pair[0] & 0x3F),
+	0x80 | ((unsigned char)pair[1] >> 6), 0x80 | (pair[1] & 0x3F));
+}
+
 /* Display the game state on the console. The map is placed in the
  * upper left corner, and the textual information appears in the upper
  * right corner.
@@ -549,7 +561,6 @@ int displaygame(cell const *map, int ysize, int xsize,
 	if (y)
 	    out("\n");
 	if (y < ysize) {
-	    out("\033(K");
 	    lastattr = 0;
 	    for (x = 0 ; x < xsize ; ++x) {
 		attr = screengrid[y][x] & ~ATTR_SHAPE;
@@ -564,10 +575,9 @@ int displaygame(cell const *map, int ysize, int xsize,
 					    '0' + attr_bgcolor(attr));
 		    lastattr = attr;
 		}
-		out("%c%c", linecells[screengrid[y][x] & ATTR_SHAPE][0],
-			    linecells[screengrid[y][x] & ATTR_SHAPE][1]);
+		outpair(linecells[screengrid[y][x] & ATTR_SHAPE]);
 	    }
-	    out("\033[22;39;49m\033(B");
+	    out("\033[22;39;49m");
 	} else {
 	    x = 0;
 	    done |= DONE_MAP;
@@ -670,10 +680,10 @@ void displayhelp(char const *keys[], int keycount)
     n = keywidth + descwidth + 2;
     if (n < 4)
 	n = 4;
-    out("%*s\033[K\n\033(0", n / 2 + 2, "Keys");
+    out("%*s\033[K\n", n / 2 + 2, "Keys");
     for (i = 0 ; i < n ; ++i)
-	out("q");
-    out("\033(B\033[K\n");
+	out("\xE2\x94\x80");
+    out("\033[K\n");
     for (i = 0 ; i < keycount ; ++i) {
 	n = strlen(keys[i]);
 	out("%-*s  %-*s\033[K\n", keywidth, keys[i],
