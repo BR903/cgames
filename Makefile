@@ -8,6 +8,7 @@ clean: csokoban-clean cmines-clean cblocks-clean
 
 distclean: csokoban-distclean cmines-distclean cblocks-distclean
 	rm -f config.cache config.log config.status
+	rm -fr autom4te.cache/
 
 csokoban: csokoban-build csokoban-install
 cmines: cmines-build cmines-install
