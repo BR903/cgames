@@ -4,6 +4,7 @@
 # --exec_prefix
 # --bindir
 # --datarootdir
+# --datadir
 # --mandir
 # --with-ncurses
 
