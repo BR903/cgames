@@ -3,6 +3,7 @@
 # --prefix
 # --exec_prefix
 # --bindir
+# --datarootdir
 # --datadir
 # --mandir
 # --with-ncurses
@@ -11,6 +12,7 @@
 prefix = @prefix@
 exec_prefix = @exec_prefix@
 bindir = @bindir@
+datarootdir = @datarootdir@
 datadir = @datarootdir@/cblocks
 mandir = @mandir@
 
