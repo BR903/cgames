@@ -37,7 +37,7 @@ typedef	struct startupdata {
 /* Online help.
  */
 static char const *yowzitch = 
-	"Usage: csokoban [-hvqlwW] [-d DIR] [-s DIR] [NAME] [-LEVEL]\n"
+	"Usage: csokoban [-hvqlwW] [-D DIR] [-S DIR] [NAME] [-LEVEL]\n"
 	"   -h  Display this help\n"
 	"   -v  Display version information\n"
 	"   -l  Print out the list of available setup files\n"
