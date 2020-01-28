@@ -299,7 +299,7 @@ void displaygame(cell const *field, int ysize, int xsize,
     int		lastattr;
     int		y, x, ch;
 
-    out("\033[H\033[22;39m");
+    out("\033[H\033%%@\033[22;39m");
 
     if (ysize + 2 > lastline ||
 			xsize * 2 + (showsmileys ? 11 : 7) > timercolumn) {
@@ -350,7 +350,7 @@ void displaygame(cell const *field, int ysize, int xsize,
     out("mq");
     for (x = 0 ; x < xsize ; ++x)
 	out("qq");
-    out("j \033(B\033[J");
+    out("j \033(B\033%%G\033[J");
     displaytimer();
 }
 
