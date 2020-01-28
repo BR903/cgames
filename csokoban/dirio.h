@@ -13,7 +13,11 @@
  */
 extern char *getpathbuffer(void);
 
-/* Copy a pathname, assuming the destination is of size PATH_MAX.
+/* Return the size of the buffers returned by getpathbuffer().
+ */
+extern int getpathbufferlength(void);
+
+/* Copy a pathname, assuming the destination is of sufficient size.
  */
 extern int copypath(char *to, char const *from);
 

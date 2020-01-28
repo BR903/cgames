@@ -338,19 +338,20 @@ static void playgame(void)
 static void initwithcmdline(int argc, char *argv[], startupdata *start)
 {
     char const *dir;
-    int		ch;
+    int		pathlen, ch;
 
     programname = argv[0];
 
+    pathlen = getpathbufferlength();
     datadir = getpathbuffer();
     copypath(datadir, DATADIR);
 
     savedir = getpathbuffer();
     if ((dir = getenv("SOKSAVEDIR"))) {
-	strncpy(savedir, dir, sizeof savedir - 1);
-	savedir[sizeof savedir - 1] = '\0';
+	strncpy(savedir, dir, pathlen - 1);
+	savedir[pathlen - 1] = '\0';
     } else if ((dir = getenv("HOME")))
-	sprintf(savedir, "%.*s/.csokoban", (int)(sizeof savedir - 11), dir);
+	sprintf(savedir, "%.*s/.csokoban", pathlen - 11, dir);
 
     start->filename = getpathbuffer();
     *start->filename = '\0';
@@ -365,8 +366,8 @@ static void initwithcmdline(int argc, char *argv[], startupdata *start)
 	  case '5': case '6': case '7': case '8': case '9':
 	    start->level = start->level * 10 + ch - '0';
 	    break;
-	  case 'D':	strncpy(datadir, optarg, sizeof datadir - 1);	break;
-	  case 'S':	strncpy(savedir, optarg, sizeof savedir - 1);	break;
+	  case 'D':	strncpy(datadir, optarg, pathlen - 1);		break;
+	  case 'S':	strncpy(savedir, optarg, pathlen - 1);		break;
 	  case 'q':	start->silence = TRUE;				break;
 	  case 'l':	start->listseries = TRUE;			break;
 	  case 'W':	start->writeanswer = -1;			break;
