@@ -35,6 +35,13 @@
 #endif
 
 
+/* Return the size of a path buffer.
+ */
+int getpathbufferlength(void)
+{
+    return PATH_MAX + 1;
+}
+
 /* Return a buffer big enough to hold a pathname.
  */
 char *getpathbuffer(void)

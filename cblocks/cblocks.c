@@ -337,19 +337,20 @@ static void initwithcmdline(int argc, char *argv[], startupdata *start)
 {
     static char	null[1] = "";
     char const *dir;
-    int		ch;
+    int		pathlen, ch;
 
     programname = argv[0];
+    pathlen = getpathbufferlength();
 
     datadir = getpathbuffer();
     copypath(datadir, DATADIR);
 
     savedir = getpathbuffer();
     if ((dir = getenv("BLKSAVEDIR"))) {
-	strncpy(savedir, dir, sizeof savedir - 1);
-	savedir[sizeof savedir - 1] = '\0';
+	strncpy(savedir, dir, pathlen - 1);
+	savedir[pathlen - 1] = '\0';
     } else if ((dir = getenv("HOME")))
-	sprintf(savedir, "%.*s/.cblocks", (int)(sizeof savedir - 10), dir);
+	sprintf(savedir, "%.*s/.cblocks", pathlen - 10, dir);
 
     start->filename = null;
     start->level = 0;
